@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
+import AuthNaviagtion from './navigation/AuthNavigation';
 import AppNaviagtion from './navigation/AppNaviagtion';
 
 export default function App() {

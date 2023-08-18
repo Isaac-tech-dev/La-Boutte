@@ -33,7 +33,8 @@ export default function Cart() {
                 </View>
             </View>
 
-            {/* DRINKS */}
+          <ScrollView>
+              {/* DRINKS */}
             <View className="mt-8">
 
                 <TouchableOpacity className="flex-row items-center justify-around" style={{backgroundColor: "#fff", padding: 10, borderRadius: 10, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4, width: "100%"}}>
@@ -186,6 +187,8 @@ export default function Cart() {
             <TouchableOpacity className="mt-20 w-full items-center" style={{padding: 10, backgroundColor:"#FE6400", borderRadius: 5}}>
               <Text className="text-xl font-bold text-white">Proceed</Text>
             </TouchableOpacity>
+          </ScrollView>
+
         </View>
       </View>
     </ScreenWrapper>
