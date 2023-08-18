@@ -31,7 +31,7 @@ export default function Welcome() {
         </View>
 
         {/* BOTTOM DESIGN */}
-        <View className="flex flex-col p-4 mt-4" style={{backgroundColor:"#fff", borderTopLeftRadius: 20, borderTopRightRadius: 20,}}>
+        <View className="flex flex-col p-4 mt-4">
           <TouchableOpacity onPress={registerNavigate} className="items-center mb-2" style={{padding: 10, backgroundColor:"#FE6400", borderRadius: 10}}>
             <Text className="text-white text-base font-bold">Create an Account</Text>
           </TouchableOpacity>

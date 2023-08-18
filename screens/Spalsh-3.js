@@ -16,7 +16,7 @@ export default function Splash_3() {
     <ScreenWrapper classname="p-4 m-4">
       <View className="h-full p-2 m-2 flex flex-col item-center justify-center">
       <View className="p-2 m-2">
-        <Image source={require('../assets/images/splash3.png')} className="items-center justify-center"/>
+        <Image source={require('../assets/images/splash3.png')} className="items-center w-60 h-60  justify-center"/>
       </View>
 
       <View className="justify-center items-center p-4 mt-4">
