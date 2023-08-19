@@ -70,7 +70,7 @@ function BottomNav () {
 export default function AppNaviagtion() {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Splash" options={{headerShown: false}}>
+        <Stack.Navigator initialRouteName="Profile" options={{headerShown: false}}>
             <Stack.Screen name="Splash" options={{headerShown: false}} component={Splash}/>
             <Stack.Screen name="Splash1" options={{headerShown: false}} component={Splash_1}/>
             <Stack.Screen name="Splash2" options={{headerShown: false}} component={Splash_2}/>

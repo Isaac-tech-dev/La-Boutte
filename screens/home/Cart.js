@@ -35,7 +35,7 @@ export default function Cart() {
 
           <ScrollView>
               {/* DRINKS */}
-            <View className="mt-8">
+            <View className="mt-8 mb-2">
 
                 <TouchableOpacity className="flex-row items-center justify-around" style={{backgroundColor: "#fff", padding: 10, borderRadius: 10, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4, width: "100%"}}>
                     <Image source={require("../../assets/images/P1.png")}/>
@@ -182,12 +182,13 @@ export default function Cart() {
                 </TouchableOpacity>
 
             </View>
-        
-            {/* BOTTOM DESIGN */}
-            <TouchableOpacity className="mt-20 w-full items-center" style={{padding: 10, backgroundColor:"#FE6400", borderRadius: 5}}>
-              <Text className="text-xl font-bold text-white">Proceed</Text>
-            </TouchableOpacity>
+
           </ScrollView>
+
+          {/* BOTTOM DESIGN */}
+          <TouchableOpacity className="mt-6 w-full items-center" style={{padding: 10, backgroundColor:"#FE6400", borderRadius: 5}}>
+              <Text className="text-xl font-bold text-white">Proceed</Text>
+          </TouchableOpacity>
 
         </View>
       </View>
