@@ -19,8 +19,6 @@ import FoodDetails from '../screens/details/FoodDetails';
 import {Octicons, MaterialCommunityIcons, Entypo, Ionicons} from "@expo/vector-icons";
 
 
-
-
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -40,32 +38,6 @@ function BottomNav () {
         </Tab.Navigator>
     )
 }
-
-// function AuthNavigation () {
-//     return (
-//         <Stack.Navigator initialRouteName="Splash" headerMode="none">
-//             <Stack.Screen name="Splash" options={{headerShown: false}} component={Splash}/>
-//             <Stack.Screen name="Splash1" options={{headerShown: false}} component={Splash_1}/>
-//             <Stack.Screen name="Splash2" options={{headerShown: false}} component={Splash_2}/>
-//             <Stack.Screen name="Splash3" options={{headerShown: false}} component={Splash_3}/>
-//             <Stack.Screen name="Welcome" options={{headerShown: false}}  component={Welcome}/>
-//             <Stack.Screen name="Register" options={{headerShown: false}}  component={Register}/>
-//             <Stack.Screen name="Login" options={{headerShown: false}}  component={Login}/>
-//         </Stack.Navigator>
-//     )
-// }
-
-// function HomeNavigation () {
-//     return (
-//     <Stack.Navigator headerMode="none">
-//         <Stack.Screen name="Auth" options={{headerShown: false}} component={AuthNavigation}/>
-//         <Stack.Screen name="Home" options={{headerShown: false}}  component={Home}/>
-//         <Stack.Screen name="Menu" options={{headerShown: false}}  component={Menu}/>
-//         <Stack.Screen name="Menu_Drinks" options={{headerShown: false}}  component={Menu_Drinks}/>
-//         <Stack.Screen name="FoodDetails" options={{headerShown: false}}  component={FoodDetails}/>
-//     </Stack.Navigator>
-//     )
-//   }
 
 export default function AppNaviagtion() {
   return (
