@@ -15,7 +15,7 @@ export default function Login() {
   const navigation = useNavigation();
 
   const homeNavigate = () => {
-    navigation.navigate("Home"); // Navigate to the next screen
+    navigation.navigate("Hom"); // Navigate to the next screen
   };
   
   return (
@@ -26,8 +26,9 @@ export default function Login() {
 
         <View className="flex flex-col">
           <View className="flex flex-row p-4 mt-4" style={{backgroundColor: "#fff", padding: 10, borderRadius: 15, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4,}}>
-            <Feather name="phone" size={20} color="#FE6400" />
-            <TextInput className="text-sm ml-4" placeholder="Phone Number"/>
+            {/* <Feather name="phone" size={20} color="#FE6400" /> */}
+            <MaterialIcons name="email" size={20} color="#FE6400" />
+            <TextInput className="text-sm ml-4" placeholder="Email"/>
           </View>
           <View className="flex flex-row p-4 mt-4" style={{backgroundColor: "#fff", padding: 10, borderRadius: 15, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4,}}>
             <Entypo name="eye-with-line" size={20} color="#FE6400" />

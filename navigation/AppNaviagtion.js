@@ -42,7 +42,7 @@ function BottomNav () {
 export default function AppNaviagtion() {
   return (
     <NavigationContainer>
-        <Stack.Navigator initialRouteName="Profile" options={{headerShown: false}}>
+        <Stack.Navigator initialRouteName="Splash" options={{headerShown: false}}>
             <Stack.Screen name="Splash" options={{headerShown: false}} component={Splash}/>
             <Stack.Screen name="Splash1" options={{headerShown: false}} component={Splash_1}/>
             <Stack.Screen name="Splash2" options={{headerShown: false}} component={Splash_2}/>
@@ -50,7 +50,7 @@ export default function AppNaviagtion() {
             <Stack.Screen name="Welcome" options={{headerShown: false}}  component={Welcome}/>
             <Stack.Screen name="Register" options={{headerShown: false}}  component={Register}/>
             <Stack.Screen name="Login" options={{headerShown: false}}  component={Login}/>
-            <Stack.Screen name="Home" options={{headerShown: false}}  component={BottomNav}/>
+            <Stack.Screen name="Hom" options={{headerShown: false}}  component={BottomNav}/>
             <Stack.Screen name="Menu" options={{headerShown: false}}  component={Menu}/>
             <Stack.Screen name="Menu_Drinks" options={{headerShown: false}}  component={Menu_Drinks}/>
             <Stack.Screen name="FoodDetails" options={{headerShown: false}}  component={FoodDetails}/>

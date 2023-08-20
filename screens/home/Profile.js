@@ -15,7 +15,7 @@ export default function Profile() {
             <MaterialCommunityIcons name="account" size={20} color="black" />
           </View>
           <TouchableOpacity style={{backgroundColor:"#FE6400"}} className="p-1 rounded-md ml-2">
-              <Ionicons name="ios-menu-sharp" size={20} color="white"/>
+              <Ionicons name="ios-settings" size={20} color="white"/>
           </TouchableOpacity>
         </View>
 

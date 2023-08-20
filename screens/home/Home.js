@@ -101,33 +101,30 @@ export default function Home() {
 
                 <View className="mt-2">
                     <View className="flex-row items-center justify-around">
-                        <View>
+                        <View className="w-1/3">
                             <Image source={require("../../assets/images/P1.png")}/>
                         </View>
-                        <View>
+                        <View className="w-1/3">
                             <Image source={require("../../assets/images/P2.png")}/>
                         </View>
-                        <View>
+                        <View className="w-1/3">
                             <Image source={require("../../assets/images/P3.png")}/>
                         </View>
                     </View>
                     <View className="flex-row items-center justify-around">
-                        <View>
+                        <View className="w-1/3">
                             <Image source={require("../../assets/images/P4.png")}/>
                         </View>
-                        <View>
+                        <View className="w-1/3">
                             <Image source={require("../../assets/images/P5.png")}/>
                         </View>
-                        <View>
+                        <View className="w-1/3">
                             <Image source={require("../../assets/images/P6.png")}/>
                         </View>
                     </View>
                 </View>
             </View>
             
-
-        
-
             {/* BOTTOM DESIGN */}
         </View>
       </View>
