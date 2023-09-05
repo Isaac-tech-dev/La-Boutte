@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { MaterialIcons, Feather, Entypo, FontAwesome, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../../components/context';
 
 export default function Login() {
 
@@ -17,6 +18,8 @@ export default function Login() {
   const homeNavigate = () => {
     navigation.navigate("Hom"); // Navigate to the next screen
   };
+
+  const {signIn} = React.useContext(AuthContext)
   
   return (
     <ScreenWrapper>
@@ -36,7 +39,7 @@ export default function Login() {
           </View>
         </View>
 
-        <TouchableOpacity onPress={homeNavigate} className="items-center mt-10" style={{padding: 10, backgroundColor:"#FE6400", borderRadius: 10}}>
+        <TouchableOpacity onPress={signIn} className="items-center mt-10" style={{padding: 10, backgroundColor:"#FE6400", borderRadius: 10}}>
             <Text className="text-white text-base font-bold">Sign In</Text>
         </TouchableOpacity>
         
