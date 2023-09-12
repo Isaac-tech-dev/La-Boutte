@@ -3,6 +3,7 @@ import React from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { MaterialCommunityIcons, Ionicons, Feather, FontAwesome } from '@expo/vector-icons';
 
+
 export default function Profile() {
   return (
     <ScreenWrapper>
@@ -21,7 +22,7 @@ export default function Profile() {
 
         {/* TOP DESIGN */}
         <View className="items-center justify-center mt-6">
-          <Image source={require("../../assets/images/profile.png")}/>
+          <Image source={require("../../../assets/images/profile.png")}/>
           <Text className="mt-2 text-lg font-semibold">Ben Davis</Text>
           <Text className="mt-1 text-xs font-regular text-gray-400">+234 (0) 90-7458-9958</Text>
         </View>

@@ -3,6 +3,7 @@ import React, {useState} from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { Ionicons, MaterialIcons, Feather, MaterialCommunityIcons, Entypo, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function FoodDetails() {
 
@@ -21,7 +22,7 @@ export default function FoodDetails() {
     }
 
   return (
-    <ScreenWrapper>
+    <SafeAreaView>
       <View className="p-2 m-2 flex flex-col item-center justify-center">
         <View>
             {/* TOP DESIGN */}
@@ -37,7 +38,7 @@ export default function FoodDetails() {
 
             {/* OFFERS */}
             <View className="justify-center items-center mt-10">
-                <Image style={{width: 200, height: 200}} source={require("../../assets/images/P2.png")}/>
+                <Image style={{width: 200, height: 200}} source={require("../../../assets/images/P2.png")}/>
                 <View className="flex flex-row justify-between items-center w-full">
                     <Text className="text-sm font-bold">$15.99</Text>
                     <View className="flex-row justify-around items-center mt-2">
@@ -86,6 +87,6 @@ export default function FoodDetails() {
             
         </View>
       </View>
-    </ScreenWrapper>
+    </SafeAreaView>
   )
 }

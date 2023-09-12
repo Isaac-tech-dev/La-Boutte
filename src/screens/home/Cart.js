@@ -3,6 +3,7 @@ import React from 'react'
 import ScreenWrapper from '../../components/ScreenWrapper'
 import { Ionicons, MaterialIcons, Feather, MaterialCommunityIcons, Entypo, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Cart() {
 
@@ -17,7 +18,7 @@ export default function Cart() {
     }  
 
   return (
-    <ScreenWrapper>
+    <SafeAreaView>
       <View className="p-2 m-2 flex flex-col item-center justify-center">
         <View>
             {/* TOP DESIGN */}
@@ -38,7 +39,7 @@ export default function Cart() {
             <View className="mt-8 mb-2">
 
                 <TouchableOpacity className="flex-row items-center justify-around" style={{backgroundColor: "#fff", padding: 10, borderRadius: 10, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4, width: "100%"}}>
-                    <Image source={require("../../assets/images/P1.png")}/>
+                    <Image source={require("../../../assets/images/P1.png")}/>
                     <View>
                         <Text>Pizaa with chicken salad</Text>
                         <View className="flex-row items-center">
@@ -74,7 +75,7 @@ export default function Cart() {
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center justify-around mt-4" style={{backgroundColor: "#fff", padding: 10, borderRadius: 10, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4, width: "100%"}}>
-                    <Image source={require("../../assets/images/D2.png")}/>
+                    <Image source={require("../../../assets/images/D2.png")}/>
                     <View>
                         <Text>Pizaa with chicken salad</Text>
                         <View className="flex-row items-center">
@@ -110,7 +111,7 @@ export default function Cart() {
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center justify-around mt-4" style={{backgroundColor: "#fff", padding: 10, borderRadius: 10, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4, width: "100%"}}>
-                    <Image source={require("../../assets/images/P3.png")}/>
+                    <Image source={require("../../../assets/images/P3.png")}/>
                     <View>
                         <Text>Pizaa with chicken salad</Text>
                         <View className="flex-row items-center">
@@ -146,7 +147,7 @@ export default function Cart() {
                 </TouchableOpacity>
 
                 <TouchableOpacity className="flex-row items-center justify-around mt-4" style={{backgroundColor: "#fff", padding: 10, borderRadius: 10, shadowColor: 'black',shadowOffset: { width: 0, height: 2 },shadowOpacity: 0.2,shadowRadius: 4, width: "100%"}}>
-                    <Image source={require("../../assets/images/D4.png")}/>
+                    <Image source={require("../../../assets/images/D4.png")}/>
                     <View>
                         <Text>Pizaa with chicken salad</Text>
                         <View className="flex-row items-center">
@@ -192,6 +193,6 @@ export default function Cart() {
 
         </View>
       </View>
-    </ScreenWrapper>
+    </SafeAreaView>
   )
 }
