@@ -1,4 +1,4 @@
-export default [
+export const Onboarding = [
   {
     id: "1",
     title: "Food At Your Door Step",

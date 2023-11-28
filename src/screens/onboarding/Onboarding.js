@@ -5,6 +5,11 @@ import Onboarding from "react-native-onboarding-swiper";
 import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 //import { setItem } from "../../utils/asyncStorage";
+import Carousel, {Pagination} from 'react-native-snap-carousel';
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 const { width, height } = Dimensions.get("window");
 
@@ -78,7 +83,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   image: {
-    width: width,
-    height: width,
+    width: wp(100),
+    height: wp(40),
   },
 });

@@ -2,7 +2,7 @@ import { View, Text } from "react-native";
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Splash from "../screens/onboarding/Splash";
-import Swipe from "../screens/onboarding/Onboarding"
+import Swipe from "../screens/onboarding/Onboarding";
 import Welcome from "../screens/auth/Welcome";
 import Register from "../screens/auth/Register";
 import Login from "../screens/auth/Login";
@@ -14,10 +14,10 @@ const AuthNavigation = () => {
     <AuthStack.Navigator initialRouteName="Splash">
       <AuthStack.Screen
         name="Splash"
-        options={{ headerShown: false }}
+        options={{ headerShown: false, animation: "slide_from_right" }}
         component={Splash}
       />
-       <AuthStack.Screen
+      <AuthStack.Screen
         name="Onboarding"
         options={{ headerShown: false }}
         component={Swipe}

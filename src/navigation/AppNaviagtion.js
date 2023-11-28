@@ -24,14 +24,21 @@ LogBox.ignoreLogs([
 
 function BottomNav() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        animation: "slide_from_right",
+        tabBarActiveTintColor: "#FE6400",
+        tabBarInactiveTintColor: "#A7A7A7",
+      }}
+    >
       <Tab.Screen
         name="Home"
         component={Home}
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Octicons name="home" color="black" size={24} />
+            <Octicons name="home" color={color} size={size} />
           ),
         }}
       />
@@ -41,7 +48,7 @@ function BottomNav() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cart" size={24} color="black" />
+            <Ionicons name="cart" color={color} size={size} />
           ),
         }}
       />
@@ -51,7 +58,7 @@ function BottomNav() {
         options={{
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="account" size={24} color="black" />
+            <MaterialCommunityIcons name="account" color={color} size={size} />
           ),
         }}
       />
@@ -61,7 +68,10 @@ function BottomNav() {
 
 export default function AppNaviagtion() {
   return (
-    <Stack.Navigator initialRouteName="Hom" options={{ headerShown: false }}>
+    <Stack.Navigator
+      initialRouteName="Hom"
+      options={{ headerShown: false, animation: "slide_from_right" }}
+    >
       <Stack.Screen
         name="Hom"
         options={{ headerShown: false }}
