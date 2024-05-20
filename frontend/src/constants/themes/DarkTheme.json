@@ -1,0 +1,23 @@
+{
+    "dark": true,
+    "colors": {
+      "primary": "#039",
+      "blue" : "#039",
+      "green": "#0DDE65",
+      "statusbar_background" : "",
+      "darkText": "#E6EBF5",
+      "statusbar": "#1A1A1A",
+      "background": "#1A1A1A",
+      "headerIcon": "#E6EBF5",
+      "panel" : "#333",
+      "headerText" : "#E6EBF5",
+      "card": "#1A1A1A",
+      "white" : "#E6EBF5",
+      "iconCard": "#CCD6EB",
+      "black" : "#1A1A1A",
+      "inputBorder": "#808080",
+      "text": "#E6EBF5",
+      "border": "rgb(199, 199, 204)",
+      "notification": "rgb(255, 69, 58,"
+    }
+  }
