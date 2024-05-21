@@ -54,7 +54,9 @@ const Menu = ({ navigation }: MenuScreenProps) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
   const [pizza, setPizza] = useState<StoreProduct[]>([]);
+  //const [filteredPizzas, setFilteredPizzas] = useState(pizza);
   const [showloadingmodal, setShowLoadingModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   let fetchproduct_count = 0;
 
@@ -184,6 +186,14 @@ const Menu = ({ navigation }: MenuScreenProps) => {
 
   console.log("Pizza", pizza);
 
+  const handleSearch = (query: any) => {
+    setSearchQuery(query);
+  };
+
+  const filteredPizzas = pizza.filter((pizza) =>
+    pizza.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const renderAllPizza = ({ item }: { item: StoreProduct }) => {
     const handleAddToCart = (productId: string, productName: string) => {
       Console.log("Product ID", productId);
@@ -264,18 +274,26 @@ const Menu = ({ navigation }: MenuScreenProps) => {
           placeholder="Search for today’s meal"
           LeftIcon={<SvgXml xml={SEARCH} />}
           containerClassName={`mt-[10px]`}
+          value={searchQuery}
+          onChangeText={handleSearch}
         />
 
         {/* LIST */}
         <View className={`mt-[10px] mb-[20px]`}>
-          <FlatList
-            data={pizza}
-            keyExtractor={keyProductExtractor}
-            renderItem={renderAllPizza}
-            contentContainerStyle={{ paddingBottom: 10 }}
-            initialNumToRender={5}
-            showsVerticalScrollIndicator={false}
-          />
+          {filteredPizzas.length === 0 ? (
+            <View>
+              <Text>Not Available</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={filteredPizzas}
+              keyExtractor={keyProductExtractor}
+              renderItem={renderAllPizza}
+              contentContainerStyle={{ paddingBottom: 10 }}
+              initialNumToRender={5}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
         </View>
       </View>
       <LoaderModal visible={showloadingmodal} />
