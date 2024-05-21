@@ -11,7 +11,7 @@ import {
   NPROFILE,
 } from "../svg";
 import Home from "../screens/main/Home";
-import Menu from "../screens/main/Menu";
+import Menu from "../screens/main/menu/Menu";
 import Cart from "../screens/main/Cart";
 import Profile from "../screens/main/Profile";
 import {

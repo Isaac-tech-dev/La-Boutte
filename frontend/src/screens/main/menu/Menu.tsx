@@ -10,13 +10,13 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/RootStackNavigation";
+import { RootStackParamList } from "../../../navigation/RootStackNavigation";
 import { CompositeScreenProps, useFocusEffect } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
-import { RootBottomTabParamList } from "../../navigation/RootBottomTabNavigtion";
+import { RootBottomTabParamList } from "../../../navigation/RootBottomTabNavigtion";
 import { SvgXml } from "react-native-svg";
-import { ARROW_DOWN, LOCATION, MENUW, SEARCH } from "../../svg";
-import Input from "../../components/Input";
+import { ARROW_DOWN, LOCATION, MENUW, SEARCH } from "../../../svg";
+import Input from "../../../components/Input";
 import {
   Ionicons,
   MaterialIcons,
@@ -26,15 +26,22 @@ import {
   FontAwesome5,
   AntDesign,
 } from "@expo/vector-icons";
-import { FecthAllPizzaResponse, StoreProduct } from "../../redux/types/store";
-import { fetchAllPizza } from "../../redux/thunk/store";
-import { ErrorResponse } from "../../redux/types/auth";
-import { Console, addCommasToNumber, handleErrorEdgeCases } from "../../utils";
+import {
+  FecthAllPizzaResponse,
+  StoreProduct,
+} from "../../../redux/types/store";
+import { fetchAllPizza } from "../../../redux/thunk/store";
+import { ErrorResponse } from "../../../redux/types/auth";
+import {
+  Console,
+  addCommasToNumber,
+  handleErrorEdgeCases,
+} from "../../../utils";
 import Toast from "react-native-root-toast";
-import { useAppDispatch, useAppSelector } from "../../redux/hooks/hook";
-import LoaderModal from "../../components/LoaderModal";
-import { addCart } from "../../redux/thunk/cart";
-import { AddToCartResponse } from "../../redux/types/cart";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks/hook";
+import LoaderModal from "../../../components/LoaderModal";
+import { addCart } from "../../../redux/thunk/cart";
+import { AddToCartResponse } from "../../../redux/types/cart";
 
 type MenuScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Menu">,
@@ -43,7 +50,7 @@ type MenuScreenProps = CompositeScreenProps<
 
 let currencySymbol = "₦";
 
-const Menu = () => {
+const Menu = ({ navigation }: MenuScreenProps) => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
   const [pizza, setPizza] = useState<StoreProduct[]>([]);
@@ -183,7 +190,17 @@ const Menu = () => {
       addToCart(productId, productName);
     };
     return (
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("MenuDescription", {
+            id: item._id,
+            image: item.image,
+            name: item.name,
+            description: item.description,
+            price: item.price,
+          })
+        }
+      >
         <View
           className={`flex-row items-center justify-between bg-[#fff] px-[10px] py-[5px] rounded-[10px] shadow-md mb-[15px]`}
         >
@@ -198,7 +215,10 @@ const Menu = () => {
           <View className={`w-2/4`}>
             <Text>{item.name}</Text>
             <View className="flex-row items-center justify-between mt-4">
-              <Text>{currencySymbol}{addCommasToNumber(item.price)}</Text>
+              <Text>
+                {currencySymbol}
+                {addCommasToNumber(item.price)}
+              </Text>
               <TouchableOpacity
                 onPress={() => {
                   Console.log("ID-----", item._id),
