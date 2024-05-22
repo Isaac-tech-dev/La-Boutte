@@ -130,7 +130,7 @@ const OfferItem: React.FC<OfferItemProps> = ({ svg, title }) => {
 
 const Home = ({ navigation }: HomeScreenProps) => {
   return (
-    <SafeAreaView className={`flex-1`}>
+    <SafeAreaView className={`flex-1 bg-[#fff]`}>
       <View className={`px-[20px]`}>
         {/* TOP DESIGN */}
         <View className={`flex-row items-center justify-between mt-[20px]`}>
@@ -152,7 +152,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
         {/* SEARCH */}
         <Input
           placeholder="Search for today’s meal"
-          className={`max-w-[276px] max-h-[30px]`}
+          className={`max-w-[276px] max-h-[30px] shadow-sm`}
           LeftIcon={<SvgXml xml={SEARCH} />}
           containerClassName={`mt-[10px]`}
         />
@@ -171,7 +171,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
         </View>
 
         {/* RESTUARNT */}
-        <View className={`mt-[20px] px-[10px]`}>
+        {/* <View className={`mt-[20px] px-[10px]`}>
           <Text className={`text-[14px] text-[#446644]`}>Resturant</Text>
           <FlatList
             data={restaurantsData}
@@ -181,7 +181,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
             className={`mt-[10px] space-x-2`}
             showsHorizontalScrollIndicator={false}
           />
-        </View>
+        </View> */}
 
         {/* ADVERT */}
         <LinearGradient

@@ -8,7 +8,7 @@ import {
   Text,
 } from "react-native";
 import Onboarding from "react-native-onboarding-swiper";
-import { useNavigation } from "@react-navigation/native";
+import { Theme, useNavigation, useTheme } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 //import Carousel, { Pagination } from "react-native-snap-carousel";
 import {
@@ -25,6 +25,7 @@ const { width, height } = Dimensions.get("window");
 type WelcomeScreenProps = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
 const Welcome = ({ navigation }: WelcomeScreenProps) => {
+  const {dark} = useTheme() as Theme;
   const [view, setView] = useState(false);
   const handleDone = () => {
     setView(true);

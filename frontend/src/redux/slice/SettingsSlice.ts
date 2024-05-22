@@ -3,7 +3,7 @@ import type {PayloadAction} from '@reduxjs/toolkit';
 import {logUserOut} from './UserSlice';
 
 export type SettingsState = {
-  displaymode?: 'dark' | 'light';
+  displaymode?: 'dark' | 'light' | 'none';
 };
 
 const initialState: SettingsState = {

@@ -37,6 +37,7 @@ import {
   FontAwesome5,
   AntDesign,
 } from "@expo/vector-icons";
+import Container from "../../components/Container";
 
 type CartScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Cart">,
@@ -168,7 +169,7 @@ const Cart = ({ navigation }: CartScreenProps) => {
     //totalCartPrice += totalPrice;
 
     return (
-      <View className={`mb-[2.5px]`}>
+      <View className={`mb-[2.5px] w-full`}>
         <View
           className={`bg-[#FFFFFF] shadow-md h-[120px] w-full rounded-[5px] px-[20px] py-[10px] flex-row items-center justify-between mb-[20px]`}
         >
@@ -225,7 +226,7 @@ const Cart = ({ navigation }: CartScreenProps) => {
 
   const EmptyCart = () => {
     return (
-      <View className={`flex-1 px-[20px]`}>
+      <View>
         {/* <View className={`flex-row items-center space-x-40 mt-[20px]`}>
           <Pressable onPress={() => navigation.goBack()}>
             <SvgXml xml={BACKARROW} />
@@ -250,38 +251,35 @@ const Cart = ({ navigation }: CartScreenProps) => {
 
   const FullCart = () => {
     return (
-      <>
-        <View
-          className={`py-[10px] px-[20px] mt-[10px] flex-row justify-between items-center w-full`}
-        >
-          <Text className={`text-[24px]`} style={{ fontFamily: "semibold" }}>
-            Cart
-          </Text>
-          <TouchableOpacity>
-            <SvgXml xml={CART_MAIN} />
-          </TouchableOpacity>
+      <View className={`flex-1 w-full`}>
+        {/* List of Cart */}
+        <View className={`flex-[1] mt-[20px]`}>
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={allCart?.items}
+            renderItem={renderCartItems}
+            keyExtractor={(item) => item.productId.toString()} // Assuming index is unique, replace it with unique key if available
+            style={{ paddingBottom: 20 }}
+          />
         </View>
-
-        <View className={`flex-1`}>
-          {/* List of Cart */}
-          <View className={`flex-[1] mt-[20px] px-[20px]`}>
-            <FlatList
-              showsVerticalScrollIndicator={false}
-              data={allCart?.items}
-              renderItem={renderCartItems}
-              keyExtractor={(item) => item.productId.toString()} // Assuming index is unique, replace it with unique key if available
-              style={{ paddingBottom: 20 }}
-            />
-          </View>
-        </View>
-      </>
+      </View>
     );
   };
 
   return (
-    <SafeAreaView className={`bg-[#f0f0f0] flex-1`}>
+    <Container
+      hidelefticon
+      showHeader
+      headerText="Cart"
+      HeaderRightIcon2={
+        <TouchableOpacity>
+          <SvgXml xml={CART_MAIN} />
+        </TouchableOpacity>
+      }
+      hideScrollView={true}
+    >
       {allCart == null ? EmptyCart() : FullCart()}
-    </SafeAreaView>
+    </Container>
   );
 };
 

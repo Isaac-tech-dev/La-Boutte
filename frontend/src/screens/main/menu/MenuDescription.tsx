@@ -15,6 +15,7 @@ import {
   FontAwesome5,
   AntDesign,
 } from "@expo/vector-icons";
+import Container from "../../../components/Container";
 
 type MenuDescriptionScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -25,15 +26,11 @@ const MenuDescription = ({ navigation, route }: MenuDescriptionScreenProps) => {
   const { id, name, image, description, price } = route.params;
   //console.log(name);
   return (
-    <SafeAreaView className={`flex-1 px-[20px]`}>
+    <Container
+      showHeader
+      HeaderRightIcon={<SvgXml xml={SAVE} />}
+    >
       <View>
-        {/* TOP DESIGN */}
-        <View className={`flex-row justify-between items-center`}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <SvgXml xml={BACK} width={30} height={30} />
-          </TouchableOpacity>
-          <SvgXml xml={SAVE} />
-        </View>
         {/* Description */}
         <View className={`flex items-center space-y-4`}>
           <Image
@@ -63,12 +60,14 @@ const MenuDescription = ({ navigation, route }: MenuDescriptionScreenProps) => {
             </View>
           </View>
         </View>
-        <View className={`flex items-start justify-start text-left mt-[10px] space-y-2`}>
+        <View
+          className={`flex items-start justify-start text-left mt-[10px] space-y-2`}
+        >
           <Text className={`text-[18px] font-bold`}>Description</Text>
           <Text className={`text-[10px]`}>{description}</Text>
         </View>
       </View>
-    </SafeAreaView>
+    </Container>
   );
 };
 

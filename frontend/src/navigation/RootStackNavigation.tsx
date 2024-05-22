@@ -1,8 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import RootBottomTabNavigtion from './RootBottomTabNavigtion'
 import MenuDescription from '../screens/main/menu/MenuDescription';
-import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
+import EditProfile from '../screens/main/profile/EditProfile';
+import Settings from '../screens/main/profile/Settings';
 
 export type RootStackParamList = {
   MainTab: undefined;
@@ -13,6 +15,8 @@ export type RootStackParamList = {
     description: string;
     price: number;
   };
+  EditProfile: undefined;
+  Settings: undefined;
 };
 
 const RootStack = createStackNavigator<RootStackParamList>();
@@ -27,6 +31,8 @@ const RootStackNavigation = () => {
     >
       <RootStack.Screen name="MainTab" component={RootBottomTabNavigtion} />
       <RootStack.Screen name="MenuDescription" component={MenuDescription} />
+      <RootStack.Screen name="EditProfile" component={EditProfile} />
+      <RootStack.Screen name="Settings" component={Settings} />
     </RootStack.Navigator>
   )
 }

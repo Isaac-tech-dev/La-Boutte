@@ -42,6 +42,7 @@ import { useAppDispatch, useAppSelector } from "../../../redux/hooks/hook";
 import LoaderModal from "../../../components/LoaderModal";
 import { addCart } from "../../../redux/thunk/cart";
 import { AddToCartResponse } from "../../../redux/types/cart";
+import Container from "../../../components/Container";
 
 type MenuScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Menu">,
@@ -252,23 +253,21 @@ const Menu = ({ navigation }: MenuScreenProps) => {
   };
 
   return (
-    <SafeAreaView className={`flex-1`}>
-      <View className={`px-[20px]`}>
-        {/* TOP DESIGN */}
-        <View className={`flex-row items-center justify-between mt-[20px]`}>
-          <View className={`flex-row items-center space-x-2`}>
-            <Text>Menu</Text>
-          </View>
-          <View className={`flex-row items-center`}>
-            <TouchableOpacity
-              onPress={() => {}}
-              className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[6px]`}
-            >
-              <SvgXml xml={MENUW} />
-            </TouchableOpacity>
-          </View>
-        </View>
-
+    <Container
+      hidelefticon
+      showHeader
+      headerText="Menu"
+      HeaderRightIcon2={
+        <TouchableOpacity
+          onPress={() => {}}
+          className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[6px]`}
+        >
+          <SvgXml xml={MENUW} />
+        </TouchableOpacity>
+      }
+      hideScrollView={true}
+    >
+      <View className={`w-full`}>
         {/* SEARCH */}
         <Input
           placeholder="Search for today’s meal"
@@ -276,6 +275,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
           containerClassName={`mt-[10px]`}
           value={searchQuery}
           onChangeText={handleSearch}
+          className={`shadow-md`}
         />
 
         {/* LIST */}
@@ -297,7 +297,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
         </View>
       </View>
       <LoaderModal visible={showloadingmodal} />
-    </SafeAreaView>
+    </Container>
   );
 };
 

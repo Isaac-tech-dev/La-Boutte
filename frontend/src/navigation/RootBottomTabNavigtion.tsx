@@ -13,7 +13,7 @@ import {
 import Home from "../screens/main/Home";
 import Menu from "../screens/main/menu/Menu";
 import Cart from "../screens/main/Cart";
-import Profile from "../screens/main/Profile";
+import Profile from "../screens/main/profile/Profile";
 import {
   BottomTabBarButtonProps,
   createBottomTabNavigator,
@@ -35,10 +35,19 @@ const RootBottomTabNavigtion = () => {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: 'rgba(255, 255, 255, 0.72)',
+          backgroundColor: "rgb(255, 255, 255)",
           paddingHorizontal: 20,
           paddingVertical: 10,
           height: 90,
+          // Shadow properties
+          shadowColor: "#000", // Shadow color
+          shadowOffset: {
+            width: 0,
+            height: -2.5, // Negative value to create a shadow at the top
+          },
+          shadowOpacity: 0.25, // Adjust the opacity
+          shadowRadius: 3.84, // Adjust the blur radius
+          elevation: 5, // Required for Android to show shadow
         },
       }}
     >
@@ -48,9 +57,7 @@ const RootBottomTabNavigtion = () => {
         options={{
           tabBarShowLabel: false,
           tabBarIcon: ({ focused }) => (
-            <View
-              className={`flex-col justify-center items-center`}
-            >
+            <View className={`flex-col justify-center items-center`}>
               {focused ? (
                 <SvgXml xml={HOME} width={30} height={30} />
               ) : (
@@ -76,9 +83,7 @@ const RootBottomTabNavigtion = () => {
         options={{
           tabBarShowLabel: false,
           tabBarIcon: ({ focused }) => (
-            <View
-              className={`flex-col justify-center items-center`}
-            >
+            <View className={`flex-col justify-center items-center`}>
               {focused ? (
                 <SvgXml xml={MENU} width={30} height={30} />
               ) : (
@@ -104,9 +109,7 @@ const RootBottomTabNavigtion = () => {
         options={{
           tabBarShowLabel: false,
           tabBarIcon: ({ focused }) => (
-            <View
-              className={`flex-col justify-center items-center`}
-            >
+            <View className={`flex-col justify-center items-center`}>
               {focused ? (
                 <SvgXml xml={CART} width={30} height={30} />
               ) : (
@@ -132,9 +135,7 @@ const RootBottomTabNavigtion = () => {
         options={{
           tabBarShowLabel: false,
           tabBarIcon: ({ focused }) => (
-            <View
-              className={`flex-col justify-center items-center`}
-            >
+            <View className={`flex-col justify-center items-center`}>
               {focused ? (
                 <SvgXml xml={PROFILE} width={30} height={30} />
               ) : (

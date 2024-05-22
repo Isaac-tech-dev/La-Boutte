@@ -14,7 +14,7 @@
       "panel" : "#FFF",
       "black" : "#1A1A1A",
       "green": "#0DDE65",
-      "statusbar": "#E6EBF5",
+      "statusbar": "#fff",
       "inputBorder": "#CCD6EB",
       "lightText": "#99ADD6",
       "border": "rgba(240, 243, 249, 1)",
