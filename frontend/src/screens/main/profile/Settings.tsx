@@ -18,64 +18,71 @@ type SettingsScreenProps = NativeStackScreenProps<
 >;
 
 const Settings = ({ navigation }: SettingsScreenProps) => {
-    const dispatch = useAppDispatch();
-    const [isEnabled, setIsEnabled] = useState(false);
-    const {dark, colors} = useTheme() as Theme;
-    const displaymode = useAppSelector(state => state.settings.displaymode);
+  const dispatch = useAppDispatch();
+  const [isEnabled, setIsEnabled] = useState(false);
+  const { dark, colors } = useTheme() as Theme;
+  const displaymode = useAppSelector((state) => state.settings.displaymode);
 
-
-    const toggleSwitch = () => {
-        //console.log("Toggled:", "True")
-        dispatch(
-          setSettings({
-            displaymode: displaymode != 'dark' ? 'dark' : 'light',
-          }),
-        );
-        setIsEnabled(previousState => !previousState);
-      };
+  const toggleSwitch = () => {
+    //console.log("Toggled:", "True")
+    dispatch(
+      setSettings({
+        displaymode: displaymode != "dark" ? "dark" : "light",
+      })
+    );
+    setIsEnabled((previousState) => !previousState);
+  };
 
   return (
     <Container showHeader headerText="Settings">
       <View className={`w-full mt-[20px] space-y-5`}>
         {/* PREFERENCES */}
         <View className={`flex-col space-y-3`}>
-          <Text className={`text-[20px] font-bold`}>Preferences</Text>
+          <Text
+            className={`text-[20px] font-bold ${
+              dark ? "text-[#fff]" : "text-[#000]"
+            }`}
+          >
+            Preferences
+          </Text>
           <Panel
             title="Dark Mode"
             subtitle=""
             LeftIcon={
-                <View
-                  className={`w-[30] h-[30] bg-[rgba(239,68,68,0.10)] rounded-full justify-center items-center`}>
-                  <SvgXml xml={DARK} />
-                </View>
-              }
+              <View
+                className={`w-[30] h-[30] bg-[rgba(239,68,68,0.10)] rounded-full justify-center items-center`}
+              >
+                <SvgXml xml={DARK} />
+              </View>
+            }
             className={`bg-[#FE6400]`}
             titleClassName={`text-[#fff]`}
             RightIcon={
-                <View>
-                  <TouchableOpacity
+              <View>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: dark ? "#0DDE65" : "#CCD6EB",
+                    borderRadius: 20,
+                    width: 45,
+                    height: 25,
+                    justifyContent: "center",
+                    alignItems: isEnabled ? "flex-end" : "flex-start",
+                    padding: 5,
+                    paddingLeft: 2,
+                  }}
+                  onPress={toggleSwitch}
+                >
+                  <View
                     style={{
-                      backgroundColor: dark ? '#0DDE65' : '#CCD6EB',
-                      borderRadius: 20,
-                      width: 45,
-                      height: 25,
-                      justifyContent: 'center',
-                      alignItems: isEnabled ? 'flex-end' : 'flex-start',
-                      padding: 5,
-                      paddingLeft: 2,
+                      width: 20,
+                      height: 20,
+                      borderRadius: 10,
+                      backgroundColor: isEnabled ? "white" : "white",
                     }}
-                    onPress={toggleSwitch}>
-                    <View
-                      style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: 10,
-                        backgroundColor: isEnabled ? 'white' : 'white',
-                      }}
-                    />
-                  </TouchableOpacity>
-                </View>
-              }
+                  />
+                </TouchableOpacity>
+              </View>
+            }
           />
           {/* <Panel
             title="Dark Mode"
@@ -87,7 +94,13 @@ const Settings = ({ navigation }: SettingsScreenProps) => {
 
         {/* SERVICES */}
         <View className={`flex-col space-y-3`}>
-          <Text className={`text-[20px] font-bold`}>About</Text>
+          <Text
+            className={`text-[20px] font-bold ${
+              dark ? "text-[#fff]" : "text-[#000]"
+            }`}
+          >
+            About
+          </Text>
           <Panel
             title="Visit Us"
             subtitle=""
@@ -104,25 +117,26 @@ const Settings = ({ navigation }: SettingsScreenProps) => {
 
         {/* SIGN OUT */}
         <View className={`flex-col space-y-3`}>
-          <Text className={`text-[20px] font-bold`}>Preferences</Text>
+          <Text
+            className={`text-[20px] font-bold ${
+              dark ? "text-[#fff]" : "text-[#000]"
+            }`}
+          >
+            Log Out
+          </Text>
           <Panel
-          LeftIcon={
-            <View
-              className={`w-[30] h-[30] bg-[rgba(239,68,68,0.10)] rounded-full justify-center items-center`}>
-              <SvgXml xml={LOGOUT} />
-            </View>
-          }
-          title="Logout"
-          subtitle=""
-          className={`mb-[10px] bg-[#FE6400]`}
-          titleClassName={`text-[#fff]`}
-          onPress={() => dispatch(logUserOut())}
-        />
-          <Panel
-            title="Dark Mode"
+            LeftIcon={
+              <View
+                className={`w-[30] h-[30] bg-[rgba(239,68,68,0.10)] rounded-full justify-center items-center`}
+              >
+                <SvgXml xml={LOGOUT} />
+              </View>
+            }
+            title="Logout"
             subtitle=""
-            className={`bg-[#FE6400]`}
+            className={`mb-[10px] bg-[#FE6400]`}
             titleClassName={`text-[#fff]`}
+            onPress={() => dispatch(logUserOut())}
           />
         </View>
       </View>

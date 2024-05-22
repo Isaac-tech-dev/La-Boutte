@@ -16,6 +16,7 @@ import {
   AntDesign,
 } from "@expo/vector-icons";
 import Container from "../../../components/Container";
+import { Theme, useTheme } from "@react-navigation/native";
 
 type MenuDescriptionScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -23,6 +24,7 @@ type MenuDescriptionScreenProps = NativeStackScreenProps<
 >;
 
 const MenuDescription = ({ navigation, route }: MenuDescriptionScreenProps) => {
+    const { dark, colors } = useTheme() as Theme;
   const { id, name, image, description, price } = route.params;
   //console.log(name);
   return (
@@ -39,7 +41,7 @@ const MenuDescription = ({ navigation, route }: MenuDescriptionScreenProps) => {
             height={250}
             className={`rounded-full`}
           />
-          <Text className={`text-[24px] font-bold`}>{name}</Text>
+          <Text className={`text-[24px] font-bold ${dark ? "text-[#fff]" : "text-[#000]"}`}>{name}</Text>
           <View className="flex-row items-center">
             <Feather name="star" size={14} color="#FE6400" />
             <Feather name="star" size={14} color="#FE6400" />
@@ -63,8 +65,8 @@ const MenuDescription = ({ navigation, route }: MenuDescriptionScreenProps) => {
         <View
           className={`flex items-start justify-start text-left mt-[10px] space-y-2`}
         >
-          <Text className={`text-[18px] font-bold`}>Description</Text>
-          <Text className={`text-[10px]`}>{description}</Text>
+          <Text className={`text-[18px] font-bold ${dark ? "text-[#fff]" : "text-[#000]"}`}>Description</Text>
+          <Text className={`text-[10px] ${dark ? "text-[#fff]" : "text-[#000]"}`}>{description}</Text>
         </View>
       </View>
     </Container>

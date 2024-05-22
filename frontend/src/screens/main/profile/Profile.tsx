@@ -10,7 +10,7 @@ import React from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
 
-import { CompositeScreenProps } from "@react-navigation/native";
+import { CompositeScreenProps, Theme, useTheme } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../../navigation/RootBottomTabNavigtion";
 import {
@@ -30,6 +30,7 @@ type ProfileScreenProps = CompositeScreenProps<
   NativeStackScreenProps<RootStackParamList>
 >;
 const Profile = ({ navigation }: ProfileScreenProps) => {
+  const { dark, colors } = useTheme() as Theme;
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
 
@@ -55,8 +56,8 @@ const Profile = ({ navigation }: ProfileScreenProps) => {
               <SvgXml xml={EDIT} className={`absolute bottom-0 left-[100px]`} />
             </TouchableOpacity>
           </View>
-          <Text className="mt-2 text-lg font-semibold">{`${user.firstname} ${user.lastname}`}</Text>
-          <Text className="mt-1 text-xs font-regular text-gray-400">
+          <Text className={`mt-2 text-lg font-semibold ${dark ? "text-[#fff]" : "text-[#000]"}`}>{`${user.firstname} ${user.lastname}`}</Text>
+          <Text className={`mt-1 text-xs font-regular ${dark ? "text-[#fff]" : "text-gray-400"}`}>
             +234 (0) 90-7458-9958
           </Text>
         </View>

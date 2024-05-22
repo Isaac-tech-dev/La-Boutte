@@ -19,6 +19,7 @@ import {
   createBottomTabNavigator,
 } from "@react-navigation/bottom-tabs";
 import { SvgXml } from "react-native-svg";
+import { useTheme } from "@react-navigation/native";
 
 export type RootBottomTabParamList = {
   Home: undefined;
@@ -30,12 +31,13 @@ export type RootBottomTabParamList = {
 const RootBottomTab = createBottomTabNavigator<RootBottomTabParamList>();
 
 const RootBottomTabNavigtion = () => {
+  const {dark, colors} = useTheme();
   return (
     <RootBottomTab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "rgb(255, 255, 255)",
+          backgroundColor: dark? "#1a1a1a" : 'rgb(255, 255, 255)',
           paddingHorizontal: 20,
           paddingVertical: 10,
           height: 90,

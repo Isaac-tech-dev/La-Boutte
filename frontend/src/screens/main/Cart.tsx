@@ -13,7 +13,7 @@ import React, { useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootStackNavigation";
 
-import { CompositeScreenProps, useFocusEffect } from "@react-navigation/native";
+import { CompositeScreenProps, Theme, useFocusEffect, useTheme } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../navigation/RootBottomTabNavigtion";
 import { BACKARROW, CART_MAIN, EMPTYCART } from "../../svg";
@@ -48,6 +48,7 @@ let currencySymbol = "₦";
 let fetchallcart_count = 0;
 
 const Cart = ({ navigation }: CartScreenProps) => {
+  const { dark, colors } = useTheme() as Theme;
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
   const [allCart, setAllCart] = useState<CartData>();
@@ -171,7 +172,7 @@ const Cart = ({ navigation }: CartScreenProps) => {
     return (
       <View className={`mb-[2.5px] w-full`}>
         <View
-          className={`bg-[#FFFFFF] shadow-md h-[120px] w-full rounded-[5px] px-[20px] py-[10px] flex-row items-center justify-between mb-[20px]`}
+          className={`${dark ? "bg-[#2a2a2a]" : "bg-[#fff]"} shadow-md h-[120px] w-full rounded-[5px] px-[20px] py-[10px] flex-row items-center justify-between mb-[20px]`}
         >
           <View className={`space-y-3`}>
             <Image
@@ -185,18 +186,18 @@ const Cart = ({ navigation }: CartScreenProps) => {
           {/* ITEMS */}
           <View className={`flex-row items-center justify-center space-x-4`}>
             <View>
-              <Text>{item.productName}</Text>
+              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>{item.productName}</Text>
               <View className="flex-row items-center">
                 <View className="flex-row items-center">
                   <FontAwesome5 name="dumbbell" size={12} color="#464646" />
-                  <Text className="ml-1">5.0g</Text>
+                  <Text className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}>5.0g</Text>
                 </View>
                 <View className="flex-row items-center ml-2">
                   <Ionicons name="flash" size={12} color="#464646" />
-                  <Text className="ml-1">60 cal</Text>
+                  <Text className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}>60 cal</Text>
                 </View>
               </View>
-              <Text>
+              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
                 {currencySymbol}
                 {addCommasToNumber(item.productId.price)}
               </Text>
@@ -208,7 +209,7 @@ const Cart = ({ navigation }: CartScreenProps) => {
                 >
                   <AntDesign name="plus" size={16} color="white" />
                 </TouchableOpacity>
-                <Text className="ml-2 mr-2 text-sm font-bold">
+                <Text className={`ml-2 mr-2 text-sm font-bold ${dark ? "text-[#fff]" : "text-[#000]"}`}>
                   {item.quantity}
                 </Text>
                 <TouchableOpacity
@@ -226,24 +227,12 @@ const Cart = ({ navigation }: CartScreenProps) => {
 
   const EmptyCart = () => {
     return (
-      <View>
-        {/* <View className={`flex-row items-center space-x-40 mt-[20px]`}>
-          <Pressable onPress={() => navigation.goBack()}>
-            <SvgXml xml={BACKARROW} />
-          </Pressable>
-        </View> */}
+      <View className="flex-1">
         <View className={`flex-1 justify-center items-center`}>
           <SvgXml xml={EMPTYCART} />
           <Text className={`text-[24px]`} style={{ fontFamily: "bold" }}>
             Your cart is empty
           </Text>
-          {/* <Text
-            className={`text-center w-3/5 text-[15px]`}
-            style={{ fontFamily: "light" }}
-          >
-            Scan the barcode on any product on the shelf or search for it to add
-            it to your cart.
-          </Text> */}
         </View>
       </View>
     );

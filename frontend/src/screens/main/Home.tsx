@@ -11,7 +11,11 @@ import {
 import React from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootStackNavigation";
-import { CompositeScreenProps } from "@react-navigation/native";
+import {
+  CompositeScreenProps,
+  Theme,
+  useTheme,
+} from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../navigation/RootBottomTabNavigtion";
 import { SvgXml } from "react-native-svg";
@@ -29,6 +33,7 @@ import {
 import Input from "../../components/Input";
 import RenderRestaurant from "../../components/RenderRestaurant";
 import { LinearGradient } from "expo-linear-gradient";
+import Container from "../../components/Container";
 
 interface OfferItemProps {
   svg: string;
@@ -116,6 +121,7 @@ const restaurantsData = [
 ];
 
 const OfferItem: React.FC<OfferItemProps> = ({ svg, title }) => {
+  const { dark, colors } = useTheme() as Theme;
   return (
     <TouchableOpacity className={`items-center justify-center`}>
       <View
@@ -123,32 +129,35 @@ const OfferItem: React.FC<OfferItemProps> = ({ svg, title }) => {
       >
         <SvgXml xml={svg} />
       </View>
-      <Text className={`mt-[8px] text-[14px]`}>{title}</Text>
+      <Text className={`mt-[8px] text-[14px] ${dark ? "text-[#fff]" : "text-[#000]"}`}>{title}</Text>
     </TouchableOpacity>
   );
 };
 
 const Home = ({ navigation }: HomeScreenProps) => {
+  const { dark, colors } = useTheme() as Theme;
   return (
-    <SafeAreaView className={`flex-1 bg-[#fff]`}>
-      <View className={`px-[20px]`}>
-        {/* TOP DESIGN */}
-        <View className={`flex-row items-center justify-between mt-[20px]`}>
-          <View className={`flex-row items-center space-x-2`}>
-            <SvgXml xml={LOCATION} />
-            <Text>Your Location</Text>
-            <SvgXml xml={ARROW_DOWN} />
-          </View>
-          <View className={`flex-row items-center`}>
-            <TouchableOpacity
-              onPress={() => {}}
-              className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[6px]`}
-            >
-              <SvgXml xml={MENUW} />
-            </TouchableOpacity>
-          </View>
+    <Container
+      HeaderLeftIcon={
+        <View className={`flex-row items-center space-x-2`}>
+          <SvgXml xml={LOCATION} />
+          <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
+            Your Location
+          </Text>
+          <SvgXml xml={ARROW_DOWN} />
         </View>
-
+      }
+      showHeader
+      HeaderRightIcon={
+        <TouchableOpacity
+          onPress={() => {}}
+          className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[6px]`}
+        >
+          <SvgXml xml={MENUW} />
+        </TouchableOpacity>
+      }
+    >
+      <View>
         {/* SEARCH */}
         <Input
           placeholder="Search for today’s meal"
@@ -204,7 +213,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
         <View className={`mt-[20px]`}>
           {/* TOP */}
           <View className={`flex-row justify-between items-center`}>
-            <Text className={`text-[14px]`}>Popular</Text>
+            <Text className={`text-[14px] ${dark ? "text-[#fff]" : "text-[#000]"}`}>Popular</Text>
             <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
               <Text className={`text-[14px] text-primary`}>See All</Text>
             </TouchableOpacity>
@@ -241,7 +250,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
           </ScrollView>
         </View>
       </View>
-    </SafeAreaView>
+    </Container>
   );
 };
 

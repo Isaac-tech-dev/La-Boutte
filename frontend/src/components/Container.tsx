@@ -66,7 +66,7 @@ const Container: FC<ContainerProps> = ({
         className={twMerge(
           `max-w-xl w-full self-center ${className} ${
             !removePadding && 'pl-6 pr-4'
-          } bg-[#fff]`,
+          } ${dark? 'bg-[#1A1A1A]':'bg-white'}`,
         )}
         style={[
           {

@@ -11,7 +11,12 @@ import {
 import React, { useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
-import { CompositeScreenProps, useFocusEffect } from "@react-navigation/native";
+import {
+  CompositeScreenProps,
+  Theme,
+  useFocusEffect,
+  useTheme,
+} from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../../navigation/RootBottomTabNavigtion";
 import { SvgXml } from "react-native-svg";
@@ -52,6 +57,7 @@ type MenuScreenProps = CompositeScreenProps<
 let currencySymbol = "₦";
 
 const Menu = ({ navigation }: MenuScreenProps) => {
+  const { dark, colors } = useTheme() as Theme;
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user);
   const [pizza, setPizza] = useState<StoreProduct[]>([]);
@@ -213,7 +219,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
         }
       >
         <View
-          className={`flex-row items-center justify-between bg-[#fff] px-[10px] py-[5px] rounded-[10px] shadow-md mb-[15px]`}
+          className={`flex-row items-center justify-between ${dark ? "bg-[#2a2a2a]" : "bg-[#fff]"} px-[10px] py-[5px] rounded-[10px] shadow-md mb-[15px]`}
         >
           <View className={`w-2/4 shadow-md rounded-full`}>
             <Image
@@ -224,9 +230,9 @@ const Menu = ({ navigation }: MenuScreenProps) => {
             />
           </View>
           <View className={`w-2/4`}>
-            <Text>{item.name}</Text>
+            <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>{item.name}</Text>
             <View className="flex-row items-center justify-between mt-4">
-              <Text>
+              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
                 {currencySymbol}
                 {addCommasToNumber(item.price)}
               </Text>
