@@ -129,7 +129,13 @@ const OfferItem: React.FC<OfferItemProps> = ({ svg, title }) => {
       >
         <SvgXml xml={svg} />
       </View>
-      <Text className={`mt-[8px] text-[14px] ${dark ? "text-[#fff]" : "text-[#000]"}`}>{title}</Text>
+      <Text
+        className={`mt-[8px] text-[14px] ${
+          dark ? "text-[#fff]" : "text-[#000]"
+        }`}
+      >
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -150,7 +156,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
       showHeader
       HeaderRightIcon={
         <TouchableOpacity
-          onPress={() => {}}
+          onPress={() => navigation.navigate("Menu")}
           className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[6px]`}
         >
           <SvgXml xml={MENUW} />
@@ -213,7 +219,11 @@ const Home = ({ navigation }: HomeScreenProps) => {
         <View className={`mt-[20px]`}>
           {/* TOP */}
           <View className={`flex-row justify-between items-center`}>
-            <Text className={`text-[14px] ${dark ? "text-[#fff]" : "text-[#000]"}`}>Popular</Text>
+            <Text
+              className={`text-[14px] ${dark ? "text-[#fff]" : "text-[#000]"}`}
+            >
+              Popular
+            </Text>
             <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
               <Text className={`text-[14px] text-primary`}>See All</Text>
             </TouchableOpacity>

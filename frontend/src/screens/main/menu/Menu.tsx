@@ -263,14 +263,6 @@ const Menu = ({ navigation }: MenuScreenProps) => {
       hidelefticon
       showHeader
       headerText="Menu"
-      HeaderRightIcon2={
-        <TouchableOpacity
-          onPress={() => {}}
-          className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[6px]`}
-        >
-          <SvgXml xml={MENUW} />
-        </TouchableOpacity>
-      }
       hideScrollView={true}
     >
       <View className={`w-full`}>

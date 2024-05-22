@@ -13,7 +13,12 @@ import React, { useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootStackNavigation";
 
-import { CompositeScreenProps, Theme, useFocusEffect, useTheme } from "@react-navigation/native";
+import {
+  CompositeScreenProps,
+  Theme,
+  useFocusEffect,
+  useTheme,
+} from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../navigation/RootBottomTabNavigtion";
 import { BACKARROW, CART_MAIN, EMPTYCART } from "../../svg";
@@ -38,6 +43,7 @@ import {
   AntDesign,
 } from "@expo/vector-icons";
 import Container from "../../components/Container";
+import Button from "../../components/Button";
 
 type CartScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Cart">,
@@ -172,7 +178,9 @@ const Cart = ({ navigation }: CartScreenProps) => {
     return (
       <View className={`mb-[2.5px] w-full`}>
         <View
-          className={`${dark ? "bg-[#2a2a2a]" : "bg-[#fff]"} shadow-md h-[120px] w-full rounded-[5px] px-[20px] py-[10px] flex-row items-center justify-between mb-[20px]`}
+          className={`${
+            dark ? "bg-[#2a2a2a]" : "bg-[#fff]"
+          } shadow-md h-[120px] w-full rounded-[5px] px-[20px] py-[10px] flex-row items-center justify-between mb-[20px]`}
         >
           <View className={`space-y-3`}>
             <Image
@@ -186,15 +194,25 @@ const Cart = ({ navigation }: CartScreenProps) => {
           {/* ITEMS */}
           <View className={`flex-row items-center justify-center space-x-4`}>
             <View>
-              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>{item.productName}</Text>
+              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
+                {item.productName}
+              </Text>
               <View className="flex-row items-center">
                 <View className="flex-row items-center">
                   <FontAwesome5 name="dumbbell" size={12} color="#464646" />
-                  <Text className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}>5.0g</Text>
+                  <Text
+                    className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}
+                  >
+                    5.0g
+                  </Text>
                 </View>
                 <View className="flex-row items-center ml-2">
                   <Ionicons name="flash" size={12} color="#464646" />
-                  <Text className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}>60 cal</Text>
+                  <Text
+                    className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}
+                  >
+                    60 cal
+                  </Text>
                 </View>
               </View>
               <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
@@ -209,7 +227,11 @@ const Cart = ({ navigation }: CartScreenProps) => {
                 >
                   <AntDesign name="plus" size={16} color="white" />
                 </TouchableOpacity>
-                <Text className={`ml-2 mr-2 text-sm font-bold ${dark ? "text-[#fff]" : "text-[#000]"}`}>
+                <Text
+                  className={`ml-2 mr-2 text-sm font-bold ${
+                    dark ? "text-[#fff]" : "text-[#000]"
+                  }`}
+                >
                   {item.quantity}
                 </Text>
                 <TouchableOpacity
@@ -242,7 +264,7 @@ const Cart = ({ navigation }: CartScreenProps) => {
     return (
       <View className={`flex-1 w-full`}>
         {/* List of Cart */}
-        <View className={`flex-[1] mt-[20px]`}>
+        <View className={`flex-[0.8] mt-[20px]`}>
           <FlatList
             showsVerticalScrollIndicator={false}
             data={allCart?.items}
@@ -250,6 +272,9 @@ const Cart = ({ navigation }: CartScreenProps) => {
             keyExtractor={(item) => item.productId.toString()} // Assuming index is unique, replace it with unique key if available
             style={{ paddingBottom: 20 }}
           />
+        </View>
+        <View className={`flex-[0.3] items-center`}>
+          <Button text="Checkout" />
         </View>
       </View>
     );
