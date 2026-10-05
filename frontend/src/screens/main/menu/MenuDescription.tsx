@@ -16,6 +16,7 @@ import {
   AntDesign,
 } from "@expo/vector-icons";
 import Container from "../../../components/Container";
+import { pizzaImageSource } from "../../../lib/pizzaImage";
 import { Theme, useTheme } from "@react-navigation/native";
 
 type MenuDescriptionScreenProps = NativeStackScreenProps<
@@ -34,9 +35,10 @@ const MenuDescription = ({ navigation, route }: MenuDescriptionScreenProps) => {
     >
       <View>
         {/* Description */}
-        <View className={`flex items-center space-y-4`}>
+        <View className={`flex items-center gap-4`}>
           <Image
-            source={{ uri: image }}
+            source={pizzaImageSource({ id, image_url: image })}
+            style={{ width: 250, height: 250 }}
             width={250}
             height={250}
             className={`rounded-full`}
@@ -63,7 +65,7 @@ const MenuDescription = ({ navigation, route }: MenuDescriptionScreenProps) => {
           </View>
         </View>
         <View
-          className={`flex items-start justify-start text-left mt-[10px] space-y-2`}
+          className={`flex items-start justify-start text-left mt-[10px] gap-2`}
         >
           <Text className={`text-[18px] font-bold ${dark ? "text-[#fff]" : "text-[#000]"}`}>Description</Text>
           <Text className={`text-[10px] ${dark ? "text-[#fff]" : "text-[#000]"}`}>{description}</Text>

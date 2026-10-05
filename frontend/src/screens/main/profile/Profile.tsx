@@ -1,11 +1,11 @@
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
@@ -65,7 +65,7 @@ const Profile = ({ navigation }: ProfileScreenProps) => {
         {/* OTHER DESIGN */}
         <View className={`flex-col items-center mt-[15px]`}>
           {/* FEATURES */}
-          <View className={`flex-col w-full items-center mb-2 space-y-2`}>
+          <View className={`flex-col w-full items-center mb-2 gap-2`}>
             <Panel
               title="Wallet"
               subtitle=""

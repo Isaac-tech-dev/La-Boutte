@@ -40,11 +40,9 @@ import {
     icon, // Accept the icon as a prop
   }) => {
     const {dark, colors} = useTheme() as Theme;
-    const BACKGROUND_COLOR = disabled
-    ? dark
-      ? '#4D4D4D'
-      : '#4D4D4D'
-    : '#FE6400';
+    // nativewind v4: inline `style` overrides `className`, so the default colour lives in
+    // className where a caller's bg-* (e.g. the green Login button) can replace it.
+    const backgroundClass = disabled ? 'bg-[#4D4D4D]' : '';
   
     return (
       <TouchableOpacity
@@ -56,9 +54,11 @@ import {
           useNativeDriver
           animation={animation}
           className={twMerge(
-            `rounded-[10px] justify-center flex-row	 items-center w-[300px] p-[15px] ${className}`,
+            'rounded-[10px] justify-center flex-row items-center w-[300px] p-[15px] bg-[#FE6400]',
+            className,
+            backgroundClass,
           )}
-          style={[{backgroundColor: BACKGROUND_COLOR}, style]}>
+          style={style}>
           {icon && icon}
           <Text
             className={twMerge(

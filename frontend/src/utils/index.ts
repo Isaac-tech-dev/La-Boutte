@@ -1,5 +1,4 @@
 //import CryptoJS from 'crypto-js';
-import axios from "axios";
 import { Response } from "../redux/types";
 //import SchemeCodes from '../constants/SchemeCodes';
 import { ERROR_CODE_TYPES } from "../constants/error";
@@ -9,27 +8,6 @@ import { logUserOut, setUser } from "../redux/slice/UserSlice";
 import { ErrorResponse } from "../redux/types/auth";
 import { Alert } from "react-native";
 import currencyCodeSymbol from "../constants/currency-code-symbol";
-
-export const getBaseUrl = () => {
-  // if (__DEV__) {
-  return "http://localhost:4002/api/api";
-  // }
-  return "";
-};
-
-export const getAuthBaseUrl = () => {
-  // if (__DEV__) {
-  return "http://localhost:4002/api/auth";
-  // }
-  return "";
-};
-
-export const getcartBaseUrl = () => {
-  // if (__DEV__) {
-  return "https://api.qjumpa.com/api";
-  // }
-  return "";
-};
 
 // export const changeAndroidNavigationBarColor = async (color: string) => {
 //   try {

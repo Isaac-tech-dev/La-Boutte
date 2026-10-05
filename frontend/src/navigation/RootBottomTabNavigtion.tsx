@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import React from "react";
 import {
   HOME,
@@ -14,12 +14,10 @@ import Home from "../screens/main/Home";
 import Menu from "../screens/main/menu/Menu";
 import Cart from "../screens/main/Cart";
 import Profile from "../screens/main/profile/Profile";
-import {
-  BottomTabBarButtonProps,
-  createBottomTabNavigator,
-} from "@react-navigation/bottom-tabs";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { SvgXml } from "react-native-svg";
 import { useTheme } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type RootBottomTabParamList = {
   Home: undefined;
@@ -30,131 +28,59 @@ export type RootBottomTabParamList = {
 
 const RootBottomTab = createBottomTabNavigator<RootBottomTabParamList>();
 
+const ACTIVE = "#FE6400";
+const INACTIVE = "#AFBDC4";
+const ICON_SIZE = 26;
+
+/** Tab icon that swaps between the filled (active) and outline (inactive) SVG. */
+const tabIcon =
+  (active: string, inactive: string) =>
+  ({ focused }: { focused: boolean }) => (
+    <SvgXml xml={focused ? active : inactive} width={ICON_SIZE} height={ICON_SIZE} />
+  );
+
 const RootBottomTabNavigtion = () => {
-  const {dark, colors} = useTheme();
+  const { dark } = useTheme();
+  const insets = useSafeAreaInsets();
   return (
     <RootBottomTab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: dark? "#1a1a1a" : 'rgb(255, 255, 255)',
-          paddingHorizontal: 20,
-          paddingVertical: 10,
-          height: 90,
-          // Shadow properties
-          shadowColor: "#000", // Shadow color
-          shadowOffset: {
-            width: 0,
-            height: -2.5, // Negative value to create a shadow at the top
+        // Use the tab bar's own label slot. Text placed inside tabBarIcon gets squeezed
+        // into the icon's narrow box in React Navigation 7, which is what wrapped "Hom / e".
+        tabBarActiveTintColor: ACTIVE,
+        tabBarInactiveTintColor: INACTIVE,
+        tabBarLabelStyle: styles.label,
+        // Room for a 26px icon + label, plus the iPhone home-indicator inset.
+        tabBarStyle: [
+          styles.bar,
+          {
+            backgroundColor: dark ? "#1A1A1A" : "#FFFFFF",
+            height: 62 + insets.bottom,
+            paddingBottom: insets.bottom + 6,
           },
-          shadowOpacity: 0.25, // Adjust the opacity
-          shadowRadius: 3.84, // Adjust the blur radius
-          elevation: 5, // Required for Android to show shadow
-        },
+        ],
       }}
     >
       <RootBottomTab.Screen
         name="Home"
         component={Home}
-        options={{
-          tabBarShowLabel: false,
-          tabBarIcon: ({ focused }) => (
-            <View className={`flex-col justify-center items-center`}>
-              {focused ? (
-                <SvgXml xml={HOME} width={30} height={30} />
-              ) : (
-                <SvgXml xml={NHOME} width={30} height={30} />
-              )}
-
-              <Text
-                className={`${
-                  focused ? "text-[#FE6400]" : "text-[#afbdc4]"
-                } text-[12px] mt-[2.5px]`}
-                style={{ fontFamily: "bold" }}
-              >
-                Home
-              </Text>
-            </View>
-          ),
-        }}
+        options={{ tabBarIcon: tabIcon(HOME, NHOME) }}
       />
-
       <RootBottomTab.Screen
         name="Menu"
         component={Menu}
-        options={{
-          tabBarShowLabel: false,
-          tabBarIcon: ({ focused }) => (
-            <View className={`flex-col justify-center items-center`}>
-              {focused ? (
-                <SvgXml xml={MENU} width={30} height={30} />
-              ) : (
-                <SvgXml xml={NMENU} width={30} height={30} />
-              )}
-
-              <Text
-                className={`${
-                  focused ? "text-[#FE6400]" : "text-[#afbdc4]"
-                } text-[12px] mt-[2.5px]`}
-                style={{ fontFamily: "bold" }}
-              >
-                Menu
-              </Text>
-            </View>
-          ),
-        }}
+        options={{ tabBarIcon: tabIcon(MENU, NMENU) }}
       />
-
       <RootBottomTab.Screen
         name="Cart"
         component={Cart}
-        options={{
-          tabBarShowLabel: false,
-          tabBarIcon: ({ focused }) => (
-            <View className={`flex-col justify-center items-center`}>
-              {focused ? (
-                <SvgXml xml={CART} width={30} height={30} />
-              ) : (
-                <SvgXml xml={NCART} width={30} height={30} />
-              )}
-
-              <Text
-                className={`${
-                  focused ? "text-[#FE6400]" : "text-[#afbdc4]"
-                } text-[12px] mt-[2.5px]`}
-                style={{ fontFamily: "bold" }}
-              >
-                Cart
-              </Text>
-            </View>
-          ),
-        }}
+        options={{ tabBarIcon: tabIcon(CART, NCART) }}
       />
-
       <RootBottomTab.Screen
         name="Profile"
         component={Profile}
-        options={{
-          tabBarShowLabel: false,
-          tabBarIcon: ({ focused }) => (
-            <View className={`flex-col justify-center items-center`}>
-              {focused ? (
-                <SvgXml xml={PROFILE} width={30} height={30} />
-              ) : (
-                <SvgXml xml={NPROFILE} width={30} height={30} />
-              )}
-
-              <Text
-                className={`${
-                  focused ? "text-[#FE6400]" : "text-[#afbdc4]"
-                } text-[12px] mt-[2.5px]`}
-                style={{ fontFamily: "bold" }}
-              >
-                Profile
-              </Text>
-            </View>
-          ),
-        }}
+        options={{ tabBarIcon: tabIcon(PROFILE, NPROFILE) }}
       />
     </RootBottomTab.Navigator>
   );
@@ -162,4 +88,19 @@ const RootBottomTabNavigtion = () => {
 
 export default RootBottomTabNavigtion;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  bar: {
+    paddingTop: 6,
+    borderTopWidth: 0,
+    // Soft shadow along the top edge
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  label: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+});

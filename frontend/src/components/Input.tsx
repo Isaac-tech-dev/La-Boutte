@@ -150,7 +150,7 @@ import {
             placeholder={placeholder}
             editable={editable}
             placeholderTextColor={
-              placeholderTextColor || dark ? '#808080' : '#99ADD6'
+              placeholderTextColor || (dark ? '#808080' : '#99ADD6')
             }
             autoComplete={autoComplete}
             secureTextEntry={showtext}

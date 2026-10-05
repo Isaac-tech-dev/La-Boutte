@@ -4,12 +4,10 @@ import UserSlice from '../slice/UserSlice';
 import {rtkQueryErrorHandler} from '../middleware/errorhandler';
 import {setupListeners} from '@reduxjs/toolkit/query';
 import SettingsSlice from '../slice/SettingsSlice';
-import UserAccountsSlice from '../slice/UserAccountsSlice';
 
 export const store = configureStore({
   reducer: {
     user: UserSlice,
-    useraccounts: UserAccountsSlice,
     settings: SettingsSlice,
     // Add the generated reducer as a specific top-level slice
     [api.reducerPath]: api.reducer,

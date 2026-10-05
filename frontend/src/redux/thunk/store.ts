@@ -1,29 +1,25 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import { Console, getBaseUrl, getcartBaseUrl } from "../../utils";
-import { FecthAllPizzaAttribute, FecthAllPizzaResponse } from "../types/store";
-import { RootState } from "../store/store";
+import { supabase } from "../../lib/supabase";
+import { toErrorResponse } from "../../lib/errors";
+import { FecthAllPizzaResponse } from "../types/store";
 import { ErrorResponse } from "../types/auth";
 
 export const fetchAllPizza = createAsyncThunk<
   FecthAllPizzaResponse,
-  FecthAllPizzaAttribute,
-  { state: RootState; rejectValue: ErrorResponse }
->("qjumpa/fetchStore", async (param, thunkApi) => {
+  void,
+  { rejectValue: ErrorResponse }
+>("laboutte/fetchStore", async (_, thunkApi) => {
   try {
-    const store = thunkApi.getState();
-    const result = await axios.get(`${getBaseUrl()}/`, {
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const { data, error } = await supabase
+      .from("pizzas")
+      .select("id, name, description, price, image_url, is_veg")
+      .order("name");
 
-    let res_data = result.data as FecthAllPizzaResponse;
-    Console.info("fetchStore data", res_data);
-    return thunkApi.fulfillWithValue(res_data);
+    if (error) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Unable to load the menu"));
+    }
+    return { message: "Products Fetch Successfully", data: data ?? [] };
   } catch (err) {
-    Console.log("---Store err1----", param);
-    // Handle error appropriately, e.g., rethrow or return rejection
-    throw err;
+    return thunkApi.rejectWithValue(toErrorResponse(err, "Unable to load the menu"));
   }
 });

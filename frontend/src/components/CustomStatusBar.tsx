@@ -23,7 +23,8 @@ const CustomStatusBar: React.FC<CustomStatusBarProps> = ({
         },
         {backgroundColor},
       ]}>
-      <StatusBar backgroundColor={backgroundColor} {...rest} />
+      {/* expo-status-bar no longer takes backgroundColor (edge-to-edge); the View above paints it. */}
+      <StatusBar {...rest} />
     </View>
   );
 };

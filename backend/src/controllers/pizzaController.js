@@ -47,7 +47,9 @@ const getAllPizza = async (req, res) => {
 // Retrieve pizza data from the database
 const getPizzaFromDB = async (req, res) => {
   try {
+    console.log("DID IT GET HERE-----------")
     const pizzas = await Pizza.find();
+    
     res
       .status(200)
       .json({ message: "Products Fetch Successfully", data: pizzas });

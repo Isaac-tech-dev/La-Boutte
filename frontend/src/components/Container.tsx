@@ -65,7 +65,7 @@ const Container: FC<ContainerProps> = ({
       <KeyboardAvoidingView
         className={twMerge(
           `max-w-xl w-full self-center ${className} ${
-            !removePadding && 'pl-6 pr-4'
+            !removePadding && 'px-5'
           } ${dark? 'bg-[#1A1A1A]':'bg-white'}`,
         )}
         style={[

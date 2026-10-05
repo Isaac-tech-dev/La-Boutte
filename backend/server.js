@@ -2,9 +2,9 @@ require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
-const userRoutes = require("./routes/user");
-const pizzaRoutes = require("./routes/pizza");
-const cartRoutes = require("./routes/cart");
+const userRoutes = require("./src/routes/user");
+const pizzaRoutes = require("./src/routes/pizza");
+const cartRoutes = require("./src/routes/cart");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 
@@ -23,8 +23,8 @@ const swaggerOptions = {
   swaggerDefinition: {
     openapi: "3.0.0",
     info: {
-      title: "MERN_STACK",
-      description: "API documentation for your project",
+      title: "LABOUTTE_API",
+      description: "API documentation for Laboute",
       version: "1.0.0",
     },
     servers: [
@@ -34,7 +34,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ["./routes/user.js", "./routes/workouts.js"], // Path to your route files
+  apis: ["./src/routes/*.js"], // Path to your route files
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
@@ -44,12 +44,15 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use("/api/auth", userRoutes);
-app.use("/api/api", pizzaRoutes);
-app.use("/api/api/cart", cartRoutes);
+app.use("/api/pizza", pizzaRoutes);
+app.use("/api/cart", cartRoutes);
 
 // Connect to DB
 mongoose
-  .connect(process.env.MONGO_URL)
+  .connect(process.env.MONGO_URL, {
+    serverSelectionTimeoutMS: 30000, // Increase timeout to 30 seconds
+    socketTimeoutMS: 45000,
+  })
   .then(() => {
     // Listen for requests
     app.listen(process.env.PORT, () => {

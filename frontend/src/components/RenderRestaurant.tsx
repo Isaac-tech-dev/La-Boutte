@@ -12,17 +12,17 @@ const RenderRestaurant: React.FC<RestaurantProps> = ({ images }) => {
         <Image source={images[0]} className={`w-full h-[70px] bg-no-repeat`} />
         <View className={`bg-[#fff] rounded-b-[10px] -mt-[15px] h-[80px] w-full flex-row justify-between items-center`}>
             {/* LOCATION */}
-            <View className={`flex-row justify-center items-center space-x-2`}>
+            <View className={`flex-row justify-center items-center gap-2`}>
                 <Text className={`text-black`}>Location:</Text>
                 <Text>3KM</Text>
             </View>
             {/* TIME */}
-            <View className={`flex-row justify-center items-center space-x-2`}>
+            <View className={`flex-row justify-center items-center gap-2`}>
                 <Text>Location:</Text>
                 <Text>3KM</Text>
             </View>
             {/* RATING */}
-            <View className={`flex-row justify-center items-center space-x-2`}>
+            <View className={`flex-row justify-center items-center gap-2`}>
                 <Text>Location:</Text>
                 <Text>3KM</Text>
             </View>

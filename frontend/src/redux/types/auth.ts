@@ -8,12 +8,8 @@ export type RegisterUserAttributes = {
 
 export type RegisterUserResponse = {
   message: string;
-  data: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    _id: string;
-  };
+  /** false when Supabase requires the user to confirm their email first */
+  sessionCreated: boolean;
 };
 
 export type LogUserInAttributes = {
@@ -22,14 +18,10 @@ export type LogUserInAttributes = {
 };
 
 export interface User {
-  __v: number;
-  _id: string;
-  createdAt: string;
+  id: string;
   email: string;
   firstName: string;
   lastName: string;
-  password: string;
-  updatedAt: string;
 }
 
 export type LogUserInResponse = {

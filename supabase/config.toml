@@ -1,0 +1,10 @@
+# Supabase CLI settings. Anything not listed here uses the CLI defaults.
+project_id = "la-boutte"
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+# The import function is protected by its own x-import-secret header instead of a user JWT.
+[functions.import-pizzas]
+verify_jwt = false

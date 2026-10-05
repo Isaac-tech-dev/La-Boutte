@@ -1,17 +1,12 @@
-export type FecthAllPizzaAttribute = String;
-export interface StoreProduct {
-  _id: string;
-  name: string;
-  veg: boolean;
-  price: number;
-  description: string;
-  quantity: number;
-  image: string;
-  sizeandcrust: {
-    [key: string]: { price: number }[];
-  }[];
-}
+import type { Tables } from "../../lib/database.types";
+
+/** A menu item, exactly as stored in the `pizzas` table. */
+export type Pizza = Pick<
+  Tables<"pizzas">,
+  "id" | "name" | "description" | "price" | "image_url" | "is_veg"
+>;
+
 export type FecthAllPizzaResponse = {
-  messsage: string;
-  data: StoreProduct[];
+  message: string;
+  data: Pizza[];
 };

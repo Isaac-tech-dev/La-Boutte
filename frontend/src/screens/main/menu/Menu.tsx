@@ -1,5 +1,4 @@
 import {
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,6 +7,7 @@ import {
   Image,
   FlatList,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
@@ -31,10 +31,7 @@ import {
   FontAwesome5,
   AntDesign,
 } from "@expo/vector-icons";
-import {
-  FecthAllPizzaResponse,
-  StoreProduct,
-} from "../../../redux/types/store";
+import { FecthAllPizzaResponse, Pizza } from "../../../redux/types/store";
 import { fetchAllPizza } from "../../../redux/thunk/store";
 import { ErrorResponse } from "../../../redux/types/auth";
 import {
@@ -43,11 +40,13 @@ import {
   handleErrorEdgeCases,
 } from "../../../utils";
 import Toast from "react-native-root-toast";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks/hook";
+import { useAppDispatch } from "../../../redux/hooks/hook";
 import LoaderModal from "../../../components/LoaderModal";
-import { addCart } from "../../../redux/thunk/cart";
-import { AddToCartResponse } from "../../../redux/types/cart";
+import { adjustCartItem } from "../../../redux/thunk/cart";
+import { AdjustCartItemResponse } from "../../../redux/types/cart";
 import Container from "../../../components/Container";
+import { pizzaImageSource } from "../../../lib/pizzaImage";
+import Panel from "../../../components/Panel";
 
 type MenuScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Menu">,
@@ -59,8 +58,7 @@ let currencySymbol = "₦";
 const Menu = ({ navigation }: MenuScreenProps) => {
   const { dark, colors } = useTheme() as Theme;
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user);
-  const [pizza, setPizza] = useState<StoreProduct[]>([]);
+  const [pizza, setPizza] = useState<Pizza[]>([]);
   //const [filteredPizzas, setFilteredPizzas] = useState(pizza);
   const [showloadingmodal, setShowLoadingModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,7 +71,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
         fetchPizza();
 
         fetchproduct_count++;
-      }, 300);
+      }, 500);
     }
   }, []);
 
@@ -82,17 +80,18 @@ const Menu = ({ navigation }: MenuScreenProps) => {
       // Component is focused
       setTimeout(() => {
         fetchPizzaSilently();
-      }, 1000);
+      }, 500);
       return () => {};
-    }, ["1"])
+    }, ["1"]),
   );
 
   //API CALLS
   const fetchPizza = async () => {
     setShowLoadingModal(true);
     try {
-      const result = await dispatch(fetchAllPizza(""));
+      const result = await dispatch(fetchAllPizza());
       const { meta, payload } = result;
+      setShowLoadingModal(false);
 
       if (meta.requestStatus == "rejected") {
         let err = payload as ErrorResponse;
@@ -114,6 +113,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
         setShowLoadingModal(false); // Set to false to hide loading modal after fetching data
       }
     } catch (err) {
+      setShowLoadingModal(false);
       Console.error("fetchStore err1:", String(err));
     }
   };
@@ -123,12 +123,10 @@ const Menu = ({ navigation }: MenuScreenProps) => {
     try {
       setShowLoadingModal(true);
       const result = await dispatch(
-        addCart({
-          userId: user.uuid,
-          productId: productId,
-          productName: productName,
-          quantity: 1,
-        })
+        adjustCartItem({
+          pizzaId: productId,
+          delta: 1,
+        }),
       );
 
       setShowLoadingModal(false);
@@ -150,13 +148,16 @@ const Menu = ({ navigation }: MenuScreenProps) => {
       }
 
       if (meta.requestStatus == "fulfilled") {
-        let res_data = payload as AddToCartResponse;
-        Console.log("Login Response", res_data);
-        Toast.show(res_data.message || "", {
-          duration: Toast.durations.SHORT,
-          backgroundColor: "green",
-          position: Toast.positions.TOP,
-        });
+        let res_data = payload as AdjustCartItemResponse;
+        Console.log("AddToCart Response", res_data);
+        Toast.show(
+          `${productName} added to cart (${res_data.quantity} in cart)`,
+          {
+            duration: Toast.durations.SHORT,
+            backgroundColor: "green",
+            position: Toast.positions.TOP,
+          },
+        );
       }
     } catch (error) {
       setShowLoadingModal(false);
@@ -166,7 +167,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
 
   const fetchPizzaSilently = async () => {
     try {
-      const result = await dispatch(fetchAllPizza(""));
+      const result = await dispatch(fetchAllPizza());
       const { meta, payload } = result;
 
       if (meta.requestStatus == "rejected") {
@@ -198,73 +199,61 @@ const Menu = ({ navigation }: MenuScreenProps) => {
   };
 
   const filteredPizzas = pizza.filter((pizza) =>
-    pizza.name.toLowerCase().includes(searchQuery.toLowerCase())
+    pizza.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const renderAllPizza = ({ item }: { item: StoreProduct }) => {
+  const renderAllPizza = ({ item }: { item: Pizza }) => {
     const handleAddToCart = (productId: string, productName: string) => {
       Console.log("Product ID", productId);
       addToCart(productId, productName);
     };
+
     return (
-      <TouchableOpacity
+      <Panel
+        containerClassName="mb-[15px]"
+        className={`${dark ? "bg-[#2a2a2a]" : "bg-[#fff]"} px-[10px] py-[5px] shadow-sm`}
+        title={item.name}
+        titleNumberOfLines={2}
+        titleClassName={dark ? "text-[#fff]" : "text-[#000]"}
+        subtitle={`${currencySymbol}${addCommasToNumber(item.price)}`}
+        subTitleClassName="text-base mt-[6px]"
+        subTitleStyle={{ color: dark ? "#fff" : "#000" }}
         onPress={() =>
           navigation.navigate("MenuDescription", {
-            id: item._id,
-            image: item.image,
+            id: item.id,
+            image: item.image_url,
             name: item.name,
             description: item.description,
             price: item.price,
           })
         }
-      >
-        <View
-          className={`flex-row items-center justify-between ${dark ? "bg-[#2a2a2a]" : "bg-[#fff]"} px-[10px] py-[5px] rounded-[10px] shadow-md mb-[15px]`}
-        >
-          <View className={`w-2/4 shadow-md rounded-full`}>
+        LeftIcon={
+          <View className="shadow-md rounded-full">
             <Image
-              source={{ uri: item.image }}
-              width={80}
-              height={80}
-              className={`rounded-full`}
+              source={pizzaImageSource(item)}
+              style={{ width: 80, height: 80 }}
+              resizeMode="contain"
             />
           </View>
-          <View className={`w-2/4`}>
-            <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>{item.name}</Text>
-            <View className="flex-row items-center justify-between mt-4">
-              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
-                {currencySymbol}
-                {addCommasToNumber(item.price)}
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  Console.log("ID-----", item._id),
-                    addToCart(item._id, item.name);
-                }}
-                className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[10px]`}
-              >
-                <AntDesign name="plus" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
+        }
+        RightIcon={
+          <TouchableOpacity
+            onPress={() => handleAddToCart(item.id, item.name)}
+            className="bg-[#FE6400] px-[10px] py-[10px] rounded-[10px]"
+          >
+            <AntDesign name="plus" size={24} color="white" />
+          </TouchableOpacity>
+        }
+      />
     );
   };
 
-  const keyProductExtractor: ((item: StoreProduct) => string) | undefined = (
-    item
-  ) => {
-    return `${item._id}`;
+  const keyProductExtractor: ((item: Pizza) => string) | undefined = (item) => {
+    return item.id;
   };
 
   return (
-    <Container
-      hidelefticon
-      showHeader
-      headerText="Menu"
-      hideScrollView={true}
-    >
+    <Container hidelefticon showHeader headerText="Menu" hideScrollView={true}>
       <View className={`w-full`}>
         {/* SEARCH */}
         <Input
