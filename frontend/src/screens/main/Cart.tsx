@@ -27,10 +27,11 @@ import { adjustCartItem, fecthallcart } from "../../redux/thunk/cart";
 import { ErrorResponse } from "../../redux/types/auth";
 import { Console, addCommasToNumber, handleErrorEdgeCases } from "../../utils";
 import Toast from "react-native-root-toast";
-import { Ionicons, FontAwesome5, AntDesign } from "@expo/vector-icons";
+import { AntDesign } from "@expo/vector-icons";
 import Container from "../../components/Container";
 import Button from "../../components/Button";
 import LoaderModal from "../../components/LoaderModal";
+import Panel from "../../components/Panel";
 import { pizzaImageSource } from "../../lib/pizzaImage";
 
 type CartScreenProps = CompositeScreenProps<
@@ -48,7 +49,7 @@ const showError = (message: string) =>
     animation: true,
   });
 
-const Cart = (_props: CartScreenProps) => {
+const Cart = ({ navigation }: CartScreenProps) => {
   const { dark } = useTheme() as Theme;
   const dispatch = useAppDispatch();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -98,73 +99,77 @@ const Cart = (_props: CartScreenProps) => {
   };
 
   const total = cartItems.reduce((sum, i) => sum + i.pizza.price * i.quantity, 0);
+  const itemCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
   const renderCartItems: ListRenderItem<CartItem> = ({ item }) => {
-    const busy = busyPizzaId === item.pizza.id;
-    return (
-      <View className={`mb-[2.5px] w-full`}>
-        <View
-          className={`${
-            dark ? "bg-[#2a2a2a]" : "bg-[#fff]"
-          } shadow-md h-[120px] w-full rounded-[5px] px-[20px] py-[10px] flex-row items-center justify-between mb-[20px]`}
-        >
-          <View className={`gap-3`}>
-            <Image
-              source={pizzaImageSource(item.pizza)}
-              style={{ width: 80, height: 80 }}
-              className={`rounded-full`}
-            />
-          </View>
+    const { pizza, quantity } = item;
+    const busy = busyPizzaId === pizza.id;
+    const unitPrice = `${currencySymbol}${addCommasToNumber(pizza.price)}`;
+    const subtitle =
+      quantity > 1
+        ? `${unitPrice} × ${quantity} = ${currencySymbol}${addCommasToNumber(pizza.price * quantity)}`
+        : unitPrice;
 
-          {/* ITEMS */}
-          <View className={`flex-row items-center justify-center gap-4`}>
-            <View>
-              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
-                {item.pizza.name}
-              </Text>
-              <View className="flex-row items-center">
-                <View className="flex-row items-center">
-                  <FontAwesome5 name="dumbbell" size={12} color="#464646" />
-                  <Text className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}>5.0g</Text>
-                </View>
-                <View className="flex-row items-center ml-2">
-                  <Ionicons name="flash" size={12} color="#464646" />
-                  <Text className={`ml-1 ${dark ? "text-[#fff]" : "text-[#000]"}`}>60 cal</Text>
-                </View>
-              </View>
-              <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
-                {currencySymbol}
-                {addCommasToNumber(item.pizza.price)}
-              </Text>
-            </View>
-            <View className="flex-row items-center justify-between mt-4">
-              <View className="flex-row justify-around items-center">
-                <TouchableOpacity
-                  disabled={busy}
-                  onPress={() => changeQuantity(item.pizza.id, 1)}
-                  className={`bg-[#FE6400] p-[2px] rounded-[5px] ${busy ? "opacity-50" : ""}`}
-                  accessibilityLabel={`Add one ${item.pizza.name}`}
-                >
-                  <AntDesign name="plus" size={16} color="white" />
-                </TouchableOpacity>
-                <Text
-                  className={`ml-2 mr-2 text-sm font-bold ${dark ? "text-[#fff]" : "text-[#000]"}`}
-                >
-                  {item.quantity}
-                </Text>
-                <TouchableOpacity
-                  disabled={busy}
-                  onPress={() => changeQuantity(item.pizza.id, -1)}
-                  className={`bg-[#FE6400] p-[2px] rounded-[5px] ${busy ? "opacity-50" : ""}`}
-                  accessibilityLabel={`Remove one ${item.pizza.name}`}
-                >
-                  <AntDesign name="minus" size={16} color="white" />
-                </TouchableOpacity>
-              </View>
-            </View>
+    return (
+      <Panel
+        title={pizza.name}
+        titleClassName={`text-[15px] font-semibold ${dark ? "text-white" : "text-black"}`}
+        subtitle={subtitle}
+        subTitleClassName={`text-[13px] mt-[4px]`}
+        subTitleStyle={{ color: "#FE6400" }}
+        className={`px-[12px] py-[10px] rounded-[12px]`}
+        style={styles.cardShadow}
+        onPress={() =>
+          navigation.navigate("MenuDescription", {
+            id: pizza.id,
+            image: pizza.image_url,
+            name: pizza.name,
+            description: pizza.description,
+            price: pizza.price,
+          })
+        }
+        LeftIcon={
+          <Image
+            source={pizzaImageSource(pizza)}
+            style={{ width: 64, height: 64 }}
+            resizeMode="contain"
+          />
+        }
+        RightIcon={
+          <View className={`flex-row items-center ${busy ? "opacity-50" : ""}`}>
+            <TouchableOpacity
+              disabled={busy}
+              onPress={() => changeQuantity(pizza.id, -1)}
+              hitSlop={8}
+              className={`w-[30px] h-[30px] items-center justify-center rounded-[8px] ${
+                dark ? "bg-[#3A3A3A]" : "bg-[#FFF0E6]"
+              }`}
+              accessibilityLabel={
+                quantity === 1 ? `Remove ${pizza.name} from cart` : `Remove one ${pizza.name}`
+              }
+            >
+              {/* At 1, the minus button removes the line, so show a bin */}
+              <AntDesign name={quantity === 1 ? "delete" : "minus"} size={16} color="#FE6400" />
+            </TouchableOpacity>
+            <Text
+              className={`w-[32px] text-center text-[15px] font-bold ${
+                dark ? "text-white" : "text-black"
+              }`}
+            >
+              {quantity}
+            </Text>
+            <TouchableOpacity
+              disabled={busy}
+              onPress={() => changeQuantity(pizza.id, 1)}
+              hitSlop={8}
+              className={`w-[30px] h-[30px] items-center justify-center rounded-[8px] bg-[#FE6400]`}
+              accessibilityLabel={`Add one ${pizza.name}`}
+            >
+              <AntDesign name="plus" size={16} color="white" />
+            </TouchableOpacity>
           </View>
-        </View>
-      </View>
+        }
+      />
     );
   };
 
@@ -182,21 +187,26 @@ const Cart = (_props: CartScreenProps) => {
   const FullCart = () => (
     <View className={`flex-1 w-full`}>
       {/* List of Cart */}
-      <View className={`flex-[0.8] mt-[20px]`}>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={cartItems}
-          renderItem={renderCartItems}
-          keyExtractor={(item) => item.id}
-          style={{ paddingBottom: 20 }}
-        />
-      </View>
-      <View className={`flex-[0.3] items-center`}>
-        <Text className={`mb-[10px] text-[18px] font-bold ${dark ? "text-[#fff]" : "text-[#000]"}`}>
-          Total: {currencySymbol}
-          {addCommasToNumber(total.toFixed(2))}
-        </Text>
-        <Button text="Checkout" />
+      <FlatList
+        className={`flex-1 mt-[16px]`}
+        showsVerticalScrollIndicator={false}
+        data={cartItems}
+        renderItem={renderCartItems}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.list}
+      />
+      {/* Footer stays pinned above the tab bar */}
+      <View className={`pt-[12px] pb-[16px] items-center gap-[12px]`}>
+        <View className={`w-full flex-row justify-between items-center`}>
+          <Text className={`text-[16px] ${dark ? "text-[#B3B3B3]" : "text-[#4D4D4D]"}`}>
+            Total ({itemCount} {itemCount === 1 ? "item" : "items"})
+          </Text>
+          <Text className={`text-[20px] font-bold ${dark ? "text-white" : "text-black"}`}>
+            {currencySymbol}
+            {addCommasToNumber(Number.isInteger(total) ? total : total.toFixed(2))}
+          </Text>
+        </View>
+        <Button text="Checkout" containerClassName={`w-full`} className={`w-full`} />
       </View>
     </View>
   );
@@ -221,4 +231,17 @@ const Cart = (_props: CartScreenProps) => {
 
 export default Cart;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  list: {
+    gap: 12,
+    paddingVertical: 4,
+    paddingBottom: 20,
+  },
+  cardShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+});

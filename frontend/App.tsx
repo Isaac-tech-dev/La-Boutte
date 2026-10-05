@@ -1,4 +1,5 @@
 import "./global.css";
+import "./src/lib/nativewind";
 import { useEffect } from "react";
 import { store } from "./src/redux/store/store";
 import { Provider } from "react-redux";

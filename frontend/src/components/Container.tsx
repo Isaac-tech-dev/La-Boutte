@@ -70,9 +70,11 @@ const Container: FC<ContainerProps> = ({
         )}
         style={[
           {
-            minHeight: height,
+            // Scrolling screens: at least a screen tall. Fixed screens (hideScrollView):
+            // fill only the space left above the tab bar, so nothing ends up hidden behind it.
+            ...(hideScrollView ? {flex: 1} : {minHeight: height}),
             paddingTop: Platform.OS == 'android' ? insets.top : 0,
-            paddingBottom: insets.bottom,
+            paddingBottom: hideScrollView ? 0 : insets.bottom,
           },
           style,
         ]}>

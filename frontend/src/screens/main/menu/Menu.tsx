@@ -254,7 +254,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
 
   return (
     <Container hidelefticon showHeader headerText="Menu" hideScrollView={true}>
-      <View className={`w-full`}>
+      <View className={`w-full flex-1`}>
         {/* SEARCH */}
         <Input
           placeholder="Search for today’s meal"
@@ -266,7 +266,7 @@ const Menu = ({ navigation }: MenuScreenProps) => {
         />
 
         {/* LIST */}
-        <View className={`mt-[10px] mb-[20px]`}>
+        <View className={`flex-1 mt-[10px]`}>
           {filteredPizzas.length === 0 ? (
             <View>
               <Text>Not Available</Text>
