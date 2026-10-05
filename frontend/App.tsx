@@ -1,11 +1,15 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import "./global.css";
+import { useEffect } from "react";
 import { store } from "./src/redux/store/store";
 import { Provider } from "react-redux";
 import Navigation from "./src/navigation";
 import { RootSiblingParent } from "react-native-root-siblings";
+import { startAuthSync } from "./src/lib/authSync";
 
 export default function App() {
+  // Restore a saved Supabase login on launch and keep Redux in sync with it.
+  useEffect(() => startAuthSync(store.dispatch), []);
+
   return (
     <Provider store={store}>
       <RootSiblingParent>
@@ -14,12 +18,3 @@ export default function App() {
     </Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

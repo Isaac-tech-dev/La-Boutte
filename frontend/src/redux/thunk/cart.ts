@@ -1,94 +1,80 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import { Console, getBaseUrl, getcartBaseUrl } from "../../utils";
+import { supabase } from "../../lib/supabase";
+import { toErrorResponse } from "../../lib/errors";
 import {
-  FetchAllCartResponse,
-  FetchAllCartAttribute,
-  AddToCartResponse,
-  AddToCartAttribute,
+  AdjustCartItemAttribute,
+  AdjustCartItemResponse,
   CartItem,
-  DeleteCartResponse,
-  DeleteCartAttribute,
+  FetchAllCartResponse,
+  RemoveCartItemAttribute,
+  RemoveCartItemResponse,
 } from "../types/cart";
-import { RootState } from "../store/store";
 import { ErrorResponse } from "../types/auth";
 
+// Row Level Security limits every query below to the logged-in user's own rows,
+// so no userId needs to be sent from the app.
+
 export const fecthallcart = createAsyncThunk<
-  FetchAllCartResponse, // Return type of the thunk
-  FetchAllCartAttribute, // Type of the payload passed to the thunk
-  { state: RootState; rejectValue: ErrorResponse }
->("qjumpa/fetchCart", async (param, thunkApi) => {
+  FetchAllCartResponse,
+  void,
+  { rejectValue: ErrorResponse }
+>("laboutte/fetchCart", async (_, thunkApi) => {
   try {
-    const store = thunkApi.getState();
-    const result = await axios.get(
-      `${getBaseUrl()}/cart/fetch-cart/${param.userId}`,
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${store.user.accessToken}`,
-        },
-      }
+    const { data, error } = await supabase
+      .from("cart_items")
+      .select("id, quantity, pizza:pizzas(id, name, description, price, image_url, is_veg)")
+      .order("created_at");
+
+    if (error) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Unable to load your cart"));
+    }
+
+    const items: CartItem[] = (data ?? []).flatMap((row) =>
+      row.pizza ? [{ id: row.id, quantity: row.quantity, pizza: row.pizza }] : []
     );
-
-    let data = result.data as FetchAllCartResponse;
-
-    return thunkApi.fulfillWithValue(data);
+    return { message: "Cart Fetched Successfully", items };
   } catch (err) {
-    Console.log("---fetchCart err1----", err);
-    // Handle error appropriately, e.g., rethrow or return rejection
-    throw err;
+    return thunkApi.rejectWithValue(toErrorResponse(err, "Unable to load your cart"));
   }
 });
 
-export const addCart = createAsyncThunk<
-  AddToCartResponse, // Return type of the thunk
-  AddToCartAttribute, // Type of the payload passed to the thunk
-  { state: RootState; rejectValue: ErrorResponse }
->("qjumpa/addToCart", async (param, thunkApi) => {
+export const adjustCartItem = createAsyncThunk<
+  AdjustCartItemResponse,
+  AdjustCartItemAttribute,
+  { rejectValue: ErrorResponse }
+>("laboutte/adjustCartItem", async ({ pizzaId, delta }, thunkApi) => {
   try {
-    Console.log("Param: ", param);
-    const store = thunkApi.getState();
-    const result = await axios.post(`${getBaseUrl()}/cart/addToCart`, param, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${store.user.accessToken}`,
-      },
+    const { data, error } = await supabase.rpc("adjust_cart_item", {
+      p_pizza_id: pizzaId,
+      p_delta: delta,
     });
 
-    Console.log("result_data: ", result.data);
-    let data = result.data as AddToCartResponse;
-
-    return thunkApi.fulfillWithValue(data);
+    if (error) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Unable to update your cart"));
+    }
+    const quantity = data ?? 0;
+    return {
+      pizzaId,
+      quantity,
+      message: delta > 0 ? "Added to cart" : quantity === 0 ? "Removed from cart" : "Cart updated",
+    };
   } catch (err) {
-    Console.log("---addToCart err1----", JSON.stringify(err));
-    // Handle error appropriately, e.g., rethrow or return rejection
-    throw err;
+    return thunkApi.rejectWithValue(toErrorResponse(err, "Unable to update your cart"));
   }
 });
 
-export const deleteCartItem = createAsyncThunk<
-  DeleteCartResponse, // Return type of the thunk
-  DeleteCartAttribute, // Type of the payload passed to the thunk
-  { state: RootState; rejectValue: ErrorResponse }
->("qjumpa/deleteCart", async (param, thunkApi) => {
+export const removeCartItem = createAsyncThunk<
+  RemoveCartItemResponse,
+  RemoveCartItemAttribute,
+  { rejectValue: ErrorResponse }
+>("laboutte/removeCartItem", async ({ pizzaId }, thunkApi) => {
   try {
-    const store = thunkApi.getState();
-    console.log(param.productId);
-    const result = await axios.delete(`${getBaseUrl()}/cart/delete-product/${param.productId}`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${store.user.accessToken}`,
-      },
-      data: param, // Pass the param as the data property
-    });
-
-    console.log("result_data: ", result.data);
-    let data = result.data as DeleteCartResponse;
-
-    return thunkApi.fulfillWithValue(data);
+    const { error } = await supabase.from("cart_items").delete().eq("pizza_id", pizzaId);
+    if (error) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Unable to remove item"));
+    }
+    return { message: "Item removed from cart" };
   } catch (err) {
-    Console.log("---deleteCart err1----", JSON.stringify(err));
-    // Handle error appropriately, e.g., rethrow or return rejection
-    throw err;
+    return thunkApi.rejectWithValue(toErrorResponse(err, "Unable to remove item"));
   }
 });

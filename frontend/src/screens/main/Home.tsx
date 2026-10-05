@@ -1,21 +1,21 @@
 import {
   FlatList,
   Image,
-  SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useCallback, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootStackNavigation";
 import {
   CompositeScreenProps,
-  Theme,
+  useFocusEffect,
   useTheme,
 } from "@react-navigation/native";
+import type { Theme } from "../../types/theme";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../navigation/RootBottomTabNavigtion";
 import { SvgXml } from "react-native-svg";
@@ -34,6 +34,11 @@ import Input from "../../components/Input";
 import RenderRestaurant from "../../components/RenderRestaurant";
 import { LinearGradient } from "expo-linear-gradient";
 import Container from "../../components/Container";
+import { useAppDispatch } from "../../redux/hooks/hook";
+import { fetchAllPizza } from "../../redux/thunk/store";
+import type { Pizza } from "../../redux/types/store";
+import { pizzaImageSource } from "../../lib/pizzaImage";
+import { addCommasToNumber } from "../../utils";
 
 interface OfferItemProps {
   svg: string;
@@ -120,19 +125,24 @@ const restaurantsData = [
   // Add more items as needed
 ];
 
+const POPULAR_COUNT = 6;
+
 const OfferItem: React.FC<OfferItemProps> = ({ svg, title }) => {
-  const { dark, colors } = useTheme() as Theme;
+  const { dark } = useTheme() as Theme;
   return (
-    <TouchableOpacity className={`items-center justify-center`}>
+    <TouchableOpacity className={`items-center w-[64px]`}>
+      {/* Fixed-size tile so every icon (and its label) lines up, whatever the SVG size */}
       <View
-        className={`bg-[#fff] px-[15px] py-[15px] rounded-[15px] shadow-md mx-[5px]`}
+        className={`w-[60px] h-[60px] items-center justify-center rounded-[16px] ${
+          dark ? "bg-[#2A2A2A]" : "bg-white"
+        }`}
+        style={styles.tileShadow}
       >
-        <SvgXml xml={svg} />
+        <SvgXml xml={svg} width={32} height={32} />
       </View>
       <Text
-        className={`mt-[8px] text-[14px] ${
-          dark ? "text-[#fff]" : "text-[#000]"
-        }`}
+        numberOfLines={1}
+        className={`mt-[8px] text-[13px] ${dark ? "text-white" : "text-black"}`}
       >
         {title}
       </Text>
@@ -141,15 +151,47 @@ const OfferItem: React.FC<OfferItemProps> = ({ svg, title }) => {
 };
 
 const Home = ({ navigation }: HomeScreenProps) => {
-  const { dark, colors } = useTheme() as Theme;
+  const { dark } = useTheme() as Theme;
+  const dispatch = useAppDispatch();
+  const [popular, setPopular] = useState<Pizza[]>([]);
+  const [loadFailed, setLoadFailed] = useState(false);
+
+  // Popular = the first few pizzas on the real menu (refreshed whenever Home is focused)
+  useFocusEffect(
+    useCallback(() => {
+      let active = true;
+      dispatch(fetchAllPizza()).then((result) => {
+        if (!active) return;
+        if (fetchAllPizza.fulfilled.match(result)) {
+          setPopular(result.payload.data.slice(0, POPULAR_COUNT));
+          setLoadFailed(false);
+        } else {
+          setLoadFailed(true);
+        }
+      });
+      return () => {
+        active = false;
+      };
+    }, [dispatch])
+  );
+
+  const openPizza = (pizza: Pizza) =>
+    navigation.navigate("MenuDescription", {
+      id: pizza.id,
+      image: pizza.image_url,
+      name: pizza.name,
+      description: pizza.description,
+      price: pizza.price,
+    });
+
+  const textColor = dark ? "text-white" : "text-black";
+
   return (
     <Container
       HeaderLeftIcon={
-        <View className={`flex-row items-center space-x-2`}>
+        <View className={`flex-row items-center gap-2`}>
           <SvgXml xml={LOCATION} />
-          <Text className={`${dark ? "text-[#fff]" : "text-[#000]"}`}>
-            Your Location
-          </Text>
+          <Text className={textColor}>Your Location</Text>
           <SvgXml xml={ARROW_DOWN} />
         </View>
       }
@@ -163,101 +205,88 @@ const Home = ({ navigation }: HomeScreenProps) => {
         </TouchableOpacity>
       }
     >
-      <View>
+      <View className={`pb-[24px]`}>
         {/* SEARCH */}
         <Input
           placeholder="Search for today’s meal"
-          className={`max-w-[276px] max-h-[30px] shadow-sm`}
+          className={`shadow-sm`}
           LeftIcon={<SvgXml xml={SEARCH} />}
           containerClassName={`mt-[10px]`}
         />
 
-        {/* OFFERS */}
-        <View className={`flex-row items-center justify-center mt-[10px]`}>
-          <FlatList
-            data={offersData}
-            renderItem={({ item }) => (
-              <OfferItem title={item.title} svg={item.svg} />
-            )}
-            keyExtractor={(item) => item.title}
-            horizontal
-            className={`space-x-4`}
-          />
-        </View>
+        {/* CATEGORIES */}
+        <FlatList
+          data={offersData}
+          renderItem={({ item }) => <OfferItem title={item.title} svg={item.svg} />}
+          keyExtractor={(item) => item.title}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          // Padding leaves room for the tile shadows so they aren't clipped
+          contentContainerStyle={styles.categories}
+          className={`mt-[12px]`}
+        />
 
-        {/* RESTUARNT */}
-        {/* <View className={`mt-[20px] px-[10px]`}>
-          <Text className={`text-[14px] text-[#446644]`}>Resturant</Text>
-          <FlatList
-            data={restaurantsData}
-            renderItem={({ item }) => <RenderRestaurant images={item.images} />}
-            keyExtractor={(item) => item.id}
-            horizontal
-            className={`mt-[10px] space-x-2`}
-            showsHorizontalScrollIndicator={false}
-          />
-        </View> */}
+        {/* ADVERT — LinearGradient isn't a core RN component, so nativewind v4 ignores
+            className on it; it has to be styled with `style`. */}
+        <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate("Menu")}>
+          <LinearGradient
+            colors={["#FE6400", "#F93F2D"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.banner}
+          >
+            <Image
+              source={require("../../../assets/images/P3.png")}
+              style={styles.bannerImage}
+            />
+            <View className={`flex-1`}>
+              <Text className={`text-[20px] font-bold text-white`}>New meal prepared</Text>
+              <Text className={`mt-[6px] text-[13px] leading-[18px] text-[#FFE27A]`}>
+                Order now and get it delivered to your location as soon as possible
+              </Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
-        {/* ADVERT */}
-        <LinearGradient
-          colors={["#FE6400", "#F93F2D"]}
-          className={`w-full h-[165px] p-[20px] flex-row justify-between items-center rounded-[10px] space-x-4 mt-[20px]`}
-        >
-          <View>
-            <Image source={require("../../../assets/images/P3.png")} />
-          </View>
-          <View className={``}>
-            <Text className={`text-[20px] text-[#fff]`}>New meal prepared</Text>
-            <Text className={`w-2/4 text-[#FFD600] text-[12px]`}>
-              Order now and get it delivered to your location as soon as
-              possible
-            </Text>
-          </View>
-        </LinearGradient>
-
-        {/* PRODUCTS */}
-        <View className={`mt-[20px]`}>
-          {/* TOP */}
+        {/* POPULAR */}
+        <View className={`mt-[24px]`}>
           <View className={`flex-row justify-between items-center`}>
-            <Text
-              className={`text-[14px] ${dark ? "text-[#fff]" : "text-[#000]"}`}
-            >
-              Popular
-            </Text>
+            <Text className={`text-[16px] font-semibold ${textColor}`}>Popular</Text>
             <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
               <Text className={`text-[14px] text-primary`}>See All</Text>
             </TouchableOpacity>
           </View>
-          {/* PRODUCRS */}
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            className={`mt-[10px] mb-[20px] pb-[20px]`}
-          >
-            {/* ONE */}
-            <View className={`flex-row items-center justify-around`}>
-              <View style={{ width: "33.3%" }}>
-                <Image source={require("../../../assets/images/P1.png")} />
-              </View>
-              <View style={{ width: "33.3%" }}>
-                <Image source={require("../../../assets/images/P2.png")} />
-              </View>
-              <View style={{ width: "33.3%" }}>
-                <Image source={require("../../../assets/images/P3.png")} />
-              </View>
+
+          {loadFailed && popular.length === 0 ? (
+            <Text className={`mt-[12px] text-[13px] text-[#808080]`}>
+              Couldn't load the menu. Pull down or reopen the tab to try again.
+            </Text>
+          ) : (
+            <View className={`mt-[12px] flex-row flex-wrap justify-between gap-y-[16px]`}>
+              {popular.map((pizza) => (
+                <TouchableOpacity
+                  key={pizza.id}
+                  onPress={() => openPizza(pizza)}
+                  className={`w-[31%] items-center`}
+                  accessibilityLabel={`${pizza.name}, ₦${addCommasToNumber(pizza.price)}`}
+                >
+                  <View className={`w-full aspect-square`}>
+                    <Image
+                      source={pizzaImageSource(pizza)}
+                      style={styles.popularImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <Text numberOfLines={1} className={`mt-[6px] text-[13px] font-semibold ${textColor}`}>
+                    {pizza.name}
+                  </Text>
+                  <Text className={`text-[12px] text-primary`}>
+                    ₦{addCommasToNumber(pizza.price)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
-            {/* TWO */}
-            <View className={`flex-row items-center justify-around`}>
-              <View style={{ width: "33.3%" }}>
-                <Image source={require("../../../assets/images/P1.png")} />
-              </View>
-              <View style={{ width: "33.3%" }}>
-                <Image source={require("../../../assets/images/P2.png")} />
-              </View>
-              <View style={{ width: "33.3%" }}>
-                <Image source={require("../../../assets/images/P3.png")} />
-              </View>
-            </View>
-          </ScrollView>
+          )}
         </View>
       </View>
     </Container>
@@ -266,4 +295,36 @@ const Home = ({ navigation }: HomeScreenProps) => {
 
 export default Home;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  categories: {
+    flexGrow: 1,
+    justifyContent: "space-between",
+    gap: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 2,
+  },
+  tileShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  banner: {
+    marginTop: 16,
+    borderRadius: 16,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    overflow: "hidden",
+  },
+  bannerImage: {
+    width: 110,
+    height: 110,
+  },
+  popularImage: {
+    width: "100%",
+    height: "100%",
+  },
+});

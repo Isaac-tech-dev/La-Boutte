@@ -1,11 +1,11 @@
 import {
   ImageBackground,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthStackParamList } from "../../navigation/AuthStackNavigation";
@@ -109,14 +109,14 @@ const Register = ({ navigation }: RegisterScreenProps) => {
     >
       <SafeAreaView className={`flex-1`}>
         <View
-          className={`flex-1 justify-center items-center px-[20px] space-y-4`}
+          className={`flex-1 justify-center items-center px-[20px] gap-4`}
         >
           {/* Header */}
           <Text className={`text-[32px]`}>Create an Account</Text>
-          <Text className={`text-14px`}>Please fill in your information</Text>
+          <Text className={`text-[14px]`}>Please fill in your information</Text>
 
           {/* Form */}
-          <View className={`w-full space-y-3 mb-[20px]`}>
+          <View className={`w-full gap-3 mb-[20px]`}>
             <Input
               placeholder="Firstname"
               className={`w-full bg-white shadow-md shadow-neutral-500`}
@@ -135,6 +135,9 @@ const Register = ({ navigation }: RegisterScreenProps) => {
             />
             <Input
               placeholder="Email Address"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
               className={`w-full bg-white shadow-md shadow-neutral-500`}
               value={email}
               onChangeText={(text) => setEmail(text)}
@@ -143,6 +146,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
             />
             <Input
               placeholder="Password"
+              textContentType="password"
               secureTextEntry={true}
               className={`w-full bg-white shadow-md shadow-neutral-500`}
               value={password}
@@ -166,7 +170,7 @@ const Register = ({ navigation }: RegisterScreenProps) => {
 
           {/* Link */}
           <View
-            className={`flex-row justify-center items-center mt-[10px] space-x-3`}
+            className={`flex-row justify-center items-center mt-[10px] gap-3`}
           >
             <Text className={`text-[14px]`}>You already have an account,</Text>
             <TouchableOpacity onPress={() => navigation.navigate("Login")}>

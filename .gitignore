@@ -1,0 +1,14 @@
+# Dependencies — reinstall with yarn / npm, never commit
+node_modules/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
+
+# macOS
+.DS_Store

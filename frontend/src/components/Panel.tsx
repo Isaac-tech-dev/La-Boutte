@@ -73,7 +73,7 @@ const Panel: FC<PanelProps> = ({
         useNativeDriver
         animation={animation}
         iterationCount={1}
-        style={[{ backgroundColor: colors.panel }, style]}
+        style={[!/(^|\s)bg-/.test(className ?? "") && { backgroundColor: colors.panel }, style]}
         className={twMerge(`w-full rounded-[10px] p-[10px] ${className}`)}
       >
         <View className="flex-row items-center w-full">
@@ -106,10 +106,10 @@ const Panel: FC<PanelProps> = ({
             <BouncyCheckbox
               size={19}
               isChecked={isChecked}
-              disableBuiltInState
+              useBuiltInState={false}
               iconImageStyle={{ tintColor: dark ? colors.blue : colors.white }}
               fillColor={dark ? colors.white : "#003399"}
-              unfillColor="transparent"
+              unFillColor="transparent"
               useNativeDriver
               innerIconStyle={{
                 borderWidth: 1,

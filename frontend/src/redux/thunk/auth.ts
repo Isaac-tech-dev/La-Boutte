@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios, { AxiosError } from "axios";
-import { Response } from "../types";
+import { supabase } from "../../lib/supabase";
+import { toErrorResponse } from "../../lib/errors";
 import {
   RegisterUserAttributes,
   RegisterUserResponse,
@@ -8,106 +8,88 @@ import {
   LogUserInResponse,
   ErrorResponse,
 } from "../types/auth";
-import { Console, getAuthBaseUrl } from "../../utils";
-import { RootState } from "../store/store";
-import { ERROR_CODE_TYPES } from "../../constants/error";
 
 export const register = createAsyncThunk<
-  RegisterUserResponse, // Return type of the thunk
-  RegisterUserAttributes // Type of the payload passed to the thunk
->("qjumpa/register", async (param, thunkApi) => {
-  try {
-    let d = param;
-    Console.log("----RegisterUserIn---", d); // Use Console.log instead of Console.log
+  RegisterUserResponse,
+  RegisterUserAttributes,
+  { rejectValue: ErrorResponse }
+>("laboutte/register", async (param, thunkApi) => {
+  if (param.password !== param.confirmpassword) {
+    return thunkApi.rejectWithValue(toErrorResponse("Passwords don't match"));
+  }
 
-    const result = await axios.post(`${getAuthBaseUrl()}/signup`, param, {
-      headers: {
-        Accept: "application/json",
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email: param.email.trim(),
+      password: param.password,
+      options: {
+        // Read by the handle_new_user() trigger to fill in the profiles table.
+        data: { first_name: param.firstName.trim(), last_name: param.lastName.trim() },
       },
     });
-    //Console.log("--------------------", d);
 
-    console.log("result_data: ", result.data);
-    let data = result.data as RegisterUserResponse;
-
-    return thunkApi.fulfillWithValue(data);
-  } catch (err) {
-    Console.log("---RegisterUserIn err1----", err);
-    if (axios.isAxiosError(err)) {
-      // If it's an AxiosError, extract the error message and return it in the ErrorResponse format
-      const errorResponse: ErrorResponse = {
-        success: false,
-        status_code: err.response?.status || 500,
-        message: err.response?.data.message || "An error occurred",
-        data: [],
-        errorCode: undefined
-      };
-
-      return thunkApi.rejectWithValue(errorResponse);
-    } else {
-      // If it's not an AxiosError, return a generic error response
-      const errorResponse: ErrorResponse = {
-        success: false,
-        status_code: 500,
-        message: "An error occurred",
-        data: [],
-        errorCode: undefined
-      };
-
-      return thunkApi.rejectWithValue(errorResponse);
+    if (error) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Registration failed"));
     }
+
+    // With email confirmation on, Supabase doesn't reveal whether the email is taken;
+    // it returns a user with no identities instead of an error.
+    if (data.user && data.user.identities?.length === 0) {
+      return thunkApi.rejectWithValue(
+        toErrorResponse("An account with this email already exists")
+      );
+    }
+
+    const sessionCreated = Boolean(data.session);
+    return {
+      sessionCreated,
+      message: sessionCreated
+        ? "Account created successfully"
+        : "Account created! Check your email to confirm, then log in.",
+    };
+  } catch (err) {
+    return thunkApi.rejectWithValue(toErrorResponse(err, "Registration failed"));
   }
 });
 
 export const login = createAsyncThunk<
-  LogUserInResponse, // Return type of the thunk
-  LogUserInAttributes // Type of the payload passed to the thunk
->("qjumpa/login", async (param, thunkApi) => {
+  LogUserInResponse,
+  LogUserInAttributes,
+  { rejectValue: ErrorResponse }
+>("laboutte/login", async (param, thunkApi) => {
   try {
-    let d = param;
-    Console.log("----logUserIn---", d); // Use Console.log instead of Console.log
-
-    const result = await axios.post(`${getAuthBaseUrl()}/signin`, param, {
-      headers: {
-        Accept: "application/json",
-      },
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: param.email.trim(),
+      password: param.password,
     });
 
-    console.log("result_data: ", result.data);
-    let data = result.data as LogUserInResponse;
-
-    // if (data.status_code != parseInt("00")) {
-    //   return thunkApi.rejectWithValue({
-    //     errorCode: data.message || ERROR_CODE_TYPES["GENERAL_ERROR"],
-    //     errorMsg: data.message || "Request failed please try again",
-    //   });
-    // }
-
-    return thunkApi.fulfillWithValue(data);
-  } catch (err) {
-    Console.log("---loginUserIn err1----", err);
-    if (axios.isAxiosError(err)) {
-      // If it's an AxiosError, extract the error message and return it in the ErrorResponse format
-      const errorResponse: ErrorResponse = {
-        success: false,
-        status_code: err.response?.status || 500,
-        message: err.response?.data.message || "An error occurred",
-        data: [],
-        errorCode: undefined
-      };
-
-      return thunkApi.rejectWithValue(errorResponse);
-    } else {
-      // If it's not an AxiosError, return a generic error response
-      const errorResponse: ErrorResponse = {
-        success: false,
-        status_code: 500,
-        message: "An error occurred",
-        data: [],
-        errorCode: undefined
-      };
-
-      return thunkApi.rejectWithValue(errorResponse);
+    if (error || !data.session) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Login failed"));
     }
+
+    const meta = data.user.user_metadata ?? {};
+    return {
+      message: "Login Successful",
+      accessToken: data.session.access_token,
+      user: {
+        id: data.user.id,
+        email: data.user.email ?? param.email,
+        firstName: typeof meta.first_name === "string" ? meta.first_name : "",
+        lastName: typeof meta.last_name === "string" ? meta.last_name : "",
+      },
+    };
+  } catch (err) {
+    return thunkApi.rejectWithValue(toErrorResponse(err, "Login failed"));
   }
 });
+
+/** Ends the Supabase session; authSync then clears the Redux user state. */
+export const logout = createAsyncThunk<void, void, { rejectValue: ErrorResponse }>(
+  "laboutte/logout",
+  async (_, thunkApi) => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Logout failed"));
+    }
+  }
+);

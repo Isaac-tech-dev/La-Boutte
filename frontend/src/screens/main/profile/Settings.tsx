@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View, Switch } from "react-native";
 import React, { useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
@@ -7,7 +7,7 @@ import Panel from "../../../components/Panel";
 import { SvgXml } from "react-native-svg";
 import { BACK, DARK, LOGOUT, SAVE } from "../../../svg";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks/hook";
-import { logUserOut } from "../../../redux/slice/UserSlice";
+import { logout } from "../../../redux/thunk/auth";
 import { Theme, useTheme } from "@react-navigation/native";
 import { setSettings } from "../../../redux/slice/SettingsSlice";
 import Container from "../../../components/Container";
@@ -19,25 +19,27 @@ type SettingsScreenProps = NativeStackScreenProps<
 
 const Settings = ({ navigation }: SettingsScreenProps) => {
   const dispatch = useAppDispatch();
-  const [isEnabled, setIsEnabled] = useState(false);
+  //const [isEnabled, setIsEnabled] = useState(false);
   const { dark, colors } = useTheme() as Theme;
   const displaymode = useAppSelector((state) => state.settings.displaymode);
+  const isEnabled = useAppSelector((state) => state.settings.isEnabled);
 
   const toggleSwitch = () => {
     //console.log("Toggled:", "True")
     dispatch(
       setSettings({
         displaymode: displaymode != "dark" ? "dark" : "light",
+        isEnabled: !isEnabled,
       })
     );
-    setIsEnabled((previousState) => !previousState);
+    //setIsEnabled((previousState) => !previousState);
   };
 
   return (
     <Container showHeader headerText="Settings">
-      <View className={`w-full mt-[20px] space-y-5`}>
+      <View className={`w-full mt-[20px] gap-5`}>
         {/* PREFERENCES */}
-        <View className={`flex-col space-y-3`}>
+        <View className={`flex-col gap-3`}>
           <Text
             className={`text-[20px] font-bold ${
               dark ? "text-[#fff]" : "text-[#000]"
@@ -59,7 +61,7 @@ const Settings = ({ navigation }: SettingsScreenProps) => {
             titleClassName={`text-[#fff]`}
             RightIcon={
               <View>
-                <TouchableOpacity
+                {/* <TouchableOpacity
                   style={{
                     backgroundColor: dark ? "#0DDE65" : "#CCD6EB",
                     borderRadius: 20,
@@ -80,7 +82,8 @@ const Settings = ({ navigation }: SettingsScreenProps) => {
                       backgroundColor: isEnabled ? "white" : "white",
                     }}
                   />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
+                <Switch onValueChange={toggleSwitch} value={isEnabled} />
               </View>
             }
           />
@@ -93,7 +96,7 @@ const Settings = ({ navigation }: SettingsScreenProps) => {
         </View>
 
         {/* SERVICES */}
-        <View className={`flex-col space-y-3`}>
+        <View className={`flex-col gap-3`}>
           <Text
             className={`text-[20px] font-bold ${
               dark ? "text-[#fff]" : "text-[#000]"
@@ -116,7 +119,7 @@ const Settings = ({ navigation }: SettingsScreenProps) => {
         </View>
 
         {/* SIGN OUT */}
-        <View className={`flex-col space-y-3`}>
+        <View className={`flex-col gap-3`}>
           <Text
             className={`text-[20px] font-bold ${
               dark ? "text-[#fff]" : "text-[#000]"
@@ -136,7 +139,7 @@ const Settings = ({ navigation }: SettingsScreenProps) => {
             subtitle=""
             className={`mb-[10px] bg-[#FE6400]`}
             titleClassName={`text-[#fff]`}
-            onPress={() => dispatch(logUserOut())}
+            onPress={() => dispatch(logout())}
           />
         </View>
       </View>

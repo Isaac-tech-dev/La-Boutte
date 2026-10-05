@@ -10,7 +10,7 @@ export type RootStackParamList = {
   MainTab: undefined;
   MenuDescription: {
     id: string;
-    image: string;
+    image: string | null;
     name: string;
     description: string;
     price: number;

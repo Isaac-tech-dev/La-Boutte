@@ -6,8 +6,8 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   ImageBackground,
-  SafeAreaView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState } from "react";
 import {
   MaterialIcons,
@@ -86,7 +86,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
             email: res_data.user.email,
             firstname: res_data.user.firstName,
             lastname: res_data.user.lastName,
-            uuid: res_data.user._id,
+            uuid: res_data.user.id,
           })
         );
 
@@ -112,16 +112,19 @@ const Login = ({ navigation }: LoginScreenProps) => {
     >
       <SafeAreaView className={`flex-1`}>
         <View
-          className={`flex-1 justify-center items-center px-[20px] space-y-4`}
+          className={`flex-1 justify-center items-center px-[20px] gap-4`}
         >
           {/* Header */}
           <Text className={`text-[32px]`}>Welcome Back!</Text>
-          <Text className={`text-14px`}>Please Log In to your account</Text>
+          <Text className={`text-[14px]`}>Please Log In to your account</Text>
 
           {/* Form */}
-          <View className={`w-full space-y-3 mb-[20px]`}>
+          <View className={`w-full gap-3 mb-[20px]`}>
             <Input
               placeholder="Email Address"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
               className={`w-full bg-white shadow-md shadow-neutral-500`}
               value={email}
               onChangeText={(text) => setEmail(text)}
@@ -130,6 +133,7 @@ const Login = ({ navigation }: LoginScreenProps) => {
             />
             <Input
               placeholder="Password"
+              textContentType="password"
               secureTextEntry={true}
               className={`w-full bg-white shadow-md shadow-neutral-500`}
               value={password}
@@ -142,25 +146,25 @@ const Login = ({ navigation }: LoginScreenProps) => {
           {/* Button */}
           <Button text="Sign In" onPress={loginUser} disabled={!filled} />
 
-          <View className={`space-y-4`}>
-            <View className={`flex-row justify-around space-x-4 items-center`}>
+          <View className={`gap-4`}>
+            <View className={`flex-row justify-around gap-4 items-center`}>
               <View className={`border-[1px] border-[#D9D9D9] w-[122px]`} />
               <Text>Connect with</Text>
               <View className={`border-[1px] border-[#D9D9D9] w-[122px]`} />
             </View>
 
             <View
-              className={`flex-row justify-center items-center space-x-[70px]`}
+              className={`flex-row justify-center items-center gap-[70px]`}
             >
               <FontAwesome5 name="facebook" size={24} color="#5675C5" />
               <FontAwesome name="google-plus" size={24} color="#F93F2D" />
-              <AntDesign name="apple1" size={24} color="#88A396" />
+              <AntDesign name="apple" size={24} color="#88A396" />
             </View>
           </View>
 
           {/* Link */}
           <View
-            className={`flex-row justify-center items-center mt-[10px] space-x-3`}
+            className={`flex-row justify-center items-center mt-[10px] gap-3`}
           ></View>
         </View>
         <LoaderModal visible={showloadingmodal} />

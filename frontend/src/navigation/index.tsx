@@ -1,10 +1,28 @@
 import { StyleSheet, Text, View, useColorScheme } from "react-native";
 import React from "react";
-import * as LightTheme from '../constants/themes/LightTheme.json';
-import * as DarkTheme from '../constants/themes/DarkTheme.json';
+import LightThemeJson from "../constants/themes/LightTheme.json";
+import DarkThemeJson from "../constants/themes/DarkTheme.json";
 import AuthStackNavigation from "./AuthStackNavigation";
 import RootStackNavigation from "./RootStackNavigation";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  DefaultTheme as NavigationLightTheme,
+  DarkTheme as NavigationDarkTheme,
+} from "@react-navigation/native";
+import type { Theme } from "../types/theme";
+
+// React Navigation 7 themes must include `fonts`, so start from its built-in themes
+// and layer the app's colours on top.
+const LightTheme: Theme = {
+  ...NavigationLightTheme,
+  dark: false,
+  colors: { ...NavigationLightTheme.colors, ...LightThemeJson.colors },
+};
+const DarkTheme: Theme = {
+  ...NavigationDarkTheme,
+  dark: true,
+  colors: { ...NavigationDarkTheme.colors, ...DarkThemeJson.colors },
+};
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useAppSelector } from "../redux/hooks/hook";

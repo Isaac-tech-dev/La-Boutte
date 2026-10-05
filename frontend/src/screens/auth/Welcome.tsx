@@ -52,10 +52,10 @@ const Welcome = ({ navigation }: WelcomeScreenProps) => {
 
           {/* BOTTOM DESIGN */}
           <View
-            className={`flex-[0.5] bg-white rounded-t-[77px] py-[20px] space-y-[80px]`}
+            className={`flex-[0.5] bg-white rounded-t-[77px] py-[20px] gap-[80px]`}
           >
             {/* Button */}
-            <View className={`items-center justify-center space-y-3 mt-[40px]`}>
+            <View className={`items-center justify-center gap-3 mt-[40px]`}>
               <Button
                 text="Create an Account"
                 onPress={() => navigation.navigate("Register")}
@@ -67,7 +67,7 @@ const Welcome = ({ navigation }: WelcomeScreenProps) => {
               />
             </View>
 
-            <View className={`space-y-4`}>
+            <View className={`gap-4`}>
               <View className={`flex-row justify-around items-center`}>
                 <View className={`border-[1px] border-[#D9D9D9] w-[122px]`} />
                 <Text>Connect with</Text>
@@ -84,7 +84,7 @@ const Welcome = ({ navigation }: WelcomeScreenProps) => {
               >
                 <FontAwesome5 name="facebook" size={24} color="#5675C5" />
                 <FontAwesome name="google-plus" size={24} color="#F93F2D" />
-                <AntDesign name="apple1" size={24} color="#88A396" />
+                <AntDesign name="apple" size={24} color="#88A396" />
               </View>
             </View>
           </View>

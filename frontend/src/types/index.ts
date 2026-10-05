@@ -1,5 +1,4 @@
 import {ImageSourcePropType} from 'react-native';
-import {FetchUserAccountsResponse} from '../redux/types/account';
 
 export type OnboardData = {
   title1: string;

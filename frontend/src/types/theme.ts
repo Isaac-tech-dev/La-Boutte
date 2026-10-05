@@ -1,13 +1,11 @@
-export type Theme = {
-  dark: boolean;
-  colors: {
-    primary: string;
-    background: string;
-    card: string;
-    text: string;
+import type { Theme as NavigationTheme } from "@react-navigation/native";
+
+/** React Navigation's theme (which includes fonts since v7) plus the app's extra colours. */
+export type Theme = Omit<NavigationTheme, "colors"> & {
+  colors: NavigationTheme["colors"] & {
     blue: string;
-    darkText:string
-    statusbar_background: string;
+    darkText: string;
+    statusbar_background?: string;
     panel: string;
     headerText: string;
     headerIcon: string;
@@ -16,9 +14,8 @@ export type Theme = {
     white: string;
     black: string;
     green: string;
-    border: string;
-    lightText:string
-    notification: string;
-    iconCard:string
+    lightText?: string;
+    iconCard?: string;
+    dots?: string;
   };
 };

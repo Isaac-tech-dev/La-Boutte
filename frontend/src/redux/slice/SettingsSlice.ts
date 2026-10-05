@@ -4,10 +4,12 @@ import {logUserOut} from './UserSlice';
 
 export type SettingsState = {
   displaymode?: 'dark' | 'light' | 'none';
+  isEnabled: boolean;
 };
 
 const initialState: SettingsState = {
   displaymode: 'light',
+  isEnabled: false,
 };
 
 const SettingsSlice = createSlice({
