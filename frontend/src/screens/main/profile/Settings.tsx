@@ -1,152 +1,111 @@
-import { StyleSheet, Text, TouchableOpacity, View, Switch } from "react-native";
-import React, { useState } from "react";
+import { Alert, Switch, Text, View } from "react-native";
+import React from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
-import { SafeAreaView } from "react-native-safe-area-context";
-import Panel from "../../../components/Panel";
-import { SvgXml } from "react-native-svg";
-import { BACK, DARK, LOGOUT, SAVE } from "../../../svg";
+import { Feather } from "@expo/vector-icons";
+import Toast from "react-native-root-toast";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks/hook";
 import { logout } from "../../../redux/thunk/auth";
-import { Theme, useTheme } from "@react-navigation/native";
 import { setSettings } from "../../../redux/slice/SettingsSlice";
 import Container from "../../../components/Container";
+import IconTile from "../../../components/IconTile";
+import MenuRow from "../../../components/MenuRow";
+import SectionTitle from "../../../components/SectionTitle";
+import appConfig from "../../../../app.json";
 
-type SettingsScreenProps = NativeStackScreenProps<
-  RootStackParamList,
-  "Settings"
->;
+type SettingsScreenProps = NativeStackScreenProps<RootStackParamList, "Settings">;
 
-const Settings = ({ navigation }: SettingsScreenProps) => {
+const BRAND = "#FE6400";
+
+const comingSoon = (feature: string) =>
+  Toast.show(`${feature} is coming soon`, {
+    duration: Toast.durations.SHORT,
+    position: Toast.positions.TOP,
+  });
+
+const softIcon = (name: React.ComponentProps<typeof Feather>["name"]) => (
+  <IconTile tone="soft">
+    <Feather name={name} size={18} color={BRAND} />
+  </IconTile>
+);
+
+const Settings = (_props: SettingsScreenProps) => {
   const dispatch = useAppDispatch();
-  //const [isEnabled, setIsEnabled] = useState(false);
-  const { dark, colors } = useTheme() as Theme;
   const displaymode = useAppSelector((state) => state.settings.displaymode);
-  const isEnabled = useAppSelector((state) => state.settings.isEnabled);
+  const darkMode = displaymode === "dark";
 
-  const toggleSwitch = () => {
-    //console.log("Toggled:", "True")
-    dispatch(
-      setSettings({
-        displaymode: displaymode != "dark" ? "dark" : "light",
-        isEnabled: !isEnabled,
-      })
-    );
-    //setIsEnabled((previousState) => !previousState);
+  const toggleDarkMode = () => {
+    dispatch(setSettings({ displaymode: darkMode ? "light" : "dark", isEnabled: !darkMode }));
   };
+
+  const confirmLogout = () =>
+    Alert.alert("Log out?", "You'll need to log in again to see your cart.", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Log out", style: "destructive", onPress: () => dispatch(logout()) },
+    ]);
 
   return (
     <Container showHeader headerText="Settings">
-      <View className={`w-full mt-[20px] gap-5`}>
-        {/* PREFERENCES */}
-        <View className={`flex-col gap-3`}>
-          <Text
-            className={`text-[20px] font-bold ${
-              dark ? "text-[#fff]" : "text-[#000]"
-            }`}
-          >
-            Preferences
-          </Text>
-          <Panel
-            title="Dark Mode"
-            subtitle=""
-            LeftIcon={
-              <View
-                className={`w-[30] h-[30] bg-[rgba(239,68,68,0.10)] rounded-full justify-center items-center`}
-              >
-                <SvgXml xml={DARK} />
-              </View>
-            }
-            className={`bg-[#FE6400]`}
-            titleClassName={`text-[#fff]`}
-            RightIcon={
-              <View>
-                {/* <TouchableOpacity
-                  style={{
-                    backgroundColor: dark ? "#0DDE65" : "#CCD6EB",
-                    borderRadius: 20,
-                    width: 45,
-                    height: 25,
-                    justifyContent: "center",
-                    alignItems: isEnabled ? "flex-end" : "flex-start",
-                    padding: 5,
-                    paddingLeft: 2,
-                  }}
-                  onPress={toggleSwitch}
-                >
-                  <View
-                    style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 10,
-                      backgroundColor: isEnabled ? "white" : "white",
-                    }}
-                  />
-                </TouchableOpacity> */}
-                <Switch onValueChange={toggleSwitch} value={isEnabled} />
-              </View>
-            }
-          />
-          {/* <Panel
-            title="Dark Mode"
-            subtitle=""
-            className={`bg-[#FE6400]`}
-            titleClassName={`text-[#fff]`}
-          /> */}
+      <View className={`w-full mt-[12px] pb-[32px]`}>
+        {/* APPEARANCE */}
+        <SectionTitle>Appearance</SectionTitle>
+        <MenuRow
+          title="Dark mode"
+          subtitle={darkMode ? "On" : "Off"}
+          icon={softIcon("moon")}
+          onPress={toggleDarkMode}
+          right={
+            <Switch
+              value={darkMode}
+              onValueChange={toggleDarkMode}
+              trackColor={{ true: BRAND, false: "#D4D4D8" }}
+              thumbColor="#FFFFFF"
+              ios_backgroundColor="#D4D4D8"
+              accessibilityLabel="Dark mode"
+            />
+          }
+        />
+
+        {/* SUPPORT */}
+        <View className={`mt-[24px]`}>
+          <SectionTitle>Support</SectionTitle>
+          <View className={`gap-[10px]`}>
+            <MenuRow
+              title="Contact us"
+              subtitle="Questions about an order"
+              icon={softIcon("message-circle")}
+              onPress={() => comingSoon("Contact")}
+            />
+            <MenuRow
+              title="Visit us"
+              subtitle="Find our nearest kitchen"
+              icon={softIcon("map-pin")}
+              onPress={() => comingSoon("Store locations")}
+            />
+          </View>
         </View>
 
-        {/* SERVICES */}
-        <View className={`flex-col gap-3`}>
-          <Text
-            className={`text-[20px] font-bold ${
-              dark ? "text-[#fff]" : "text-[#000]"
-            }`}
-          >
-            About
-          </Text>
-          <Panel
-            title="Visit Us"
-            subtitle=""
-            className={`bg-[#FE6400]`}
-            titleClassName={`text-[#fff]`}
-          />
-          <Panel
-            title="Contact Us"
-            subtitle=""
-            className={`bg-[#FE6400]`}
-            titleClassName={`text-[#fff]`}
+        {/* ACCOUNT */}
+        <View className={`mt-[24px]`}>
+          <SectionTitle>Account</SectionTitle>
+          <MenuRow
+            title="Log out"
+            icon={
+              <IconTile tone="danger">
+                <Feather name="log-out" size={18} color="#E5484D" />
+              </IconTile>
+            }
+            onPress={confirmLogout}
+            destructive
           />
         </View>
 
-        {/* SIGN OUT */}
-        <View className={`flex-col gap-3`}>
-          <Text
-            className={`text-[20px] font-bold ${
-              dark ? "text-[#fff]" : "text-[#000]"
-            }`}
-          >
-            Log Out
-          </Text>
-          <Panel
-            LeftIcon={
-              <View
-                className={`w-[30] h-[30] bg-[rgba(239,68,68,0.10)] rounded-full justify-center items-center`}
-              >
-                <SvgXml xml={LOGOUT} />
-              </View>
-            }
-            title="Logout"
-            subtitle=""
-            className={`mb-[10px] bg-[#FE6400]`}
-            titleClassName={`text-[#fff]`}
-            onPress={() => dispatch(logout())}
-          />
-        </View>
+        <Text className={`mt-[28px] text-center text-[12px] text-[#A1A1AA]`}>
+          La-Boutte · Version {appConfig.expo.version}
+        </Text>
       </View>
     </Container>
   );
 };
 
 export default Settings;
-
-const styles = StyleSheet.create({});

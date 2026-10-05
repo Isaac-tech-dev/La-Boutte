@@ -1,38 +1,43 @@
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Image,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
-
-import { CompositeScreenProps, Theme, useTheme } from "@react-navigation/native";
+import { CompositeScreenProps, useTheme } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../../navigation/RootBottomTabNavigtion";
-import {
-  MaterialCommunityIcons,
-  Ionicons,
-  Feather,
-  FontAwesome,
-} from "@expo/vector-icons";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks/hook";
+import { Feather } from "@expo/vector-icons";
 import { SvgXml } from "react-native-svg";
-import { FAVOURITE, ORDER, TRACK, WALLET, EDIT, SETTINGS } from "../../../svg";
-import Panel from "../../../components/Panel";
+import Toast from "react-native-root-toast";
+import { useAppSelector } from "../../../redux/hooks/hook";
+import { FAVOURITE, ORDER, TRACK, WALLET } from "../../../svg";
 import Container from "../../../components/Container";
+import Avatar from "../../../components/Avatar";
+import IconTile from "../../../components/IconTile";
+import MenuRow from "../../../components/MenuRow";
+import SectionTitle from "../../../components/SectionTitle";
 
 type ProfileScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Profile">,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+const comingSoon = (feature: string) =>
+  Toast.show(`${feature} is coming soon`, {
+    duration: Toast.durations.SHORT,
+    position: Toast.positions.TOP,
+  });
+
+/** The white icons in src/svg are drawn for an orange background, so they sit in a brand tile. */
+const svgIcon = (xml: string) => (
+  <IconTile>
+    <SvgXml xml={xml} width={22} height={22} />
+  </IconTile>
+);
+
 const Profile = ({ navigation }: ProfileScreenProps) => {
-  const { dark, colors } = useTheme() as Theme;
-  const dispatch = useAppDispatch();
+  const { dark } = useTheme();
   const user = useAppSelector((state) => state.user);
+  const fullName = [user.firstname, user.lastname].filter(Boolean).join(" ") || "Your name";
 
   return (
     <Container
@@ -40,59 +45,101 @@ const Profile = ({ navigation }: ProfileScreenProps) => {
       showHeader
       headerText="Profile"
       HeaderRightIcon2={
-        <TouchableOpacity onPress={() => navigation.navigate("Settings")}>
-          <SvgXml xml={SETTINGS} width={30} height={30} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Settings")}
+          className={`w-[40px] h-[40px] rounded-full items-center justify-center ${
+            dark ? "bg-[#2A2A2A]" : "bg-[#F4F4F5]"
+          }`}
+          accessibilityLabel="Settings"
+        >
+          <Feather name="settings" size={20} color={dark ? "#fff" : "#1A1A1A"} />
         </TouchableOpacity>
       }
     >
-      <View className={`flex item-center justify-center w-full`}>
-        {/* TOP DESIGN */}
-        <View className="items-center justify-center mt-6">
-          <View>
-            <Image source={require("../../../../assets/images/profile.png")} />
-            <TouchableOpacity
-              onPress={() => navigation.navigate("EditProfile")}
+      <View className={`w-full pb-[32px]`}>
+        {/* PROFILE CARD */}
+        <View
+          className={`mt-[12px] items-center rounded-[20px] px-[20px] py-[24px] ${
+            dark ? "bg-[#262626]" : "bg-white"
+          }`}
+          style={styles.card}
+        >
+          <TouchableOpacity
+            onPress={() => navigation.navigate("EditProfile")}
+            activeOpacity={0.85}
+            accessibilityLabel="Edit profile"
+          >
+            <Avatar firstName={user.firstname} lastName={user.lastname} email={user.email} />
+            <View
+              className={`absolute bottom-0 right-0 w-[30px] h-[30px] rounded-full items-center justify-center bg-[#1A1A1A] border-[3px] ${
+                dark ? "border-[#262626]" : "border-white"
+              }`}
             >
-              <SvgXml xml={EDIT} className={`absolute bottom-0 left-[100px]`} />
-            </TouchableOpacity>
-          </View>
-          <Text className={`mt-2 text-lg font-semibold ${dark ? "text-[#fff]" : "text-[#000]"}`}>{`${user.firstname} ${user.lastname}`}</Text>
-          <Text className={`mt-1 text-xs font-regular ${dark ? "text-[#fff]" : "text-gray-400"}`}>
-            +234 (0) 90-7458-9958
+              <Feather name="edit-2" size={13} color="#fff" />
+            </View>
+          </TouchableOpacity>
+
+          <Text
+            className={`mt-[14px] text-[20px] font-bold ${dark ? "text-white" : "text-[#1A1A1A]"}`}
+          >
+            {fullName}
           </Text>
+          {!!user.email && (
+            <Text className={`mt-[2px] text-[14px] text-[#8A8A8A]`}>{user.email}</Text>
+          )}
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("EditProfile")}
+            className={`mt-[16px] px-[18px] py-[8px] rounded-full border border-[#FE6400]`}
+          >
+            <Text className={`text-[13px] font-semibold text-[#FE6400]`}>Edit profile</Text>
+          </TouchableOpacity>
         </View>
 
-        {/* OTHER DESIGN */}
-        <View className={`flex-col items-center mt-[15px]`}>
-          {/* FEATURES */}
-          <View className={`flex-col w-full items-center mb-2 gap-2`}>
-            <Panel
-              title="Wallet"
-              subtitle=""
-              className={`bg-[#FE6400]`}
-              titleClassName={`text-[#fff]`}
-              LeftIcon={<SvgXml xml={WALLET} />}
+        {/* ORDERS */}
+        <View className={`mt-[28px]`}>
+          <SectionTitle>Orders</SectionTitle>
+          <View className={`gap-[10px]`}>
+            <MenuRow
+              title="My orders"
+              subtitle="See what you've ordered before"
+              icon={svgIcon(ORDER)}
+              onPress={() => comingSoon("Order history")}
             />
-            <Panel
-              title="Order"
-              subtitle=""
-              className={`bg-[#FE6400]`}
-              titleClassName={`text-[#fff]`}
-              LeftIcon={<SvgXml xml={ORDER} />}
+            <MenuRow
+              title="Track order"
+              subtitle="Follow your delivery in real time"
+              icon={svgIcon(TRACK)}
+              onPress={() => comingSoon("Order tracking")}
             />
-            <Panel
+          </View>
+        </View>
+
+        {/* ACCOUNT */}
+        <View className={`mt-[24px]`}>
+          <SectionTitle>Account</SectionTitle>
+          <View className={`gap-[10px]`}>
+            <MenuRow
               title="Saved"
-              subtitle=""
-              className={`bg-[#FE6400]`}
-              titleClassName={`text-[#fff]`}
-              LeftIcon={<SvgXml xml={FAVOURITE} />}
+              subtitle="Your favourite pizzas"
+              icon={svgIcon(FAVOURITE)}
+              onPress={() => comingSoon("Saved pizzas")}
             />
-            <Panel
-              title="Track"
-              subtitle=""
-              className={`bg-[#FE6400]`}
-              titleClassName={`text-[#fff]`}
-              LeftIcon={<SvgXml xml={TRACK} />}
+            <MenuRow
+              title="Wallet"
+              subtitle="Balance and payment methods"
+              icon={svgIcon(WALLET)}
+              onPress={() => comingSoon("Wallet")}
+            />
+            <MenuRow
+              title="Settings"
+              subtitle="Appearance, support and log out"
+              icon={
+                <IconTile tone="soft">
+                  <Feather name="sliders" size={18} color="#FE6400" />
+                </IconTile>
+              }
+              onPress={() => navigation.navigate("Settings")}
             />
           </View>
         </View>
@@ -103,4 +150,12 @@ const Profile = ({ navigation }: ProfileScreenProps) => {
 
 export default Profile;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  card: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    elevation: 2,
+  },
+});

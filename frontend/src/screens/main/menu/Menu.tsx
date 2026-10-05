@@ -1,293 +1,293 @@
 import {
-  ScrollView,
+  FlatList,
+  Image,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
-  Image,
-  FlatList,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/RootStackNavigation";
-import {
-  CompositeScreenProps,
-  Theme,
-  useFocusEffect,
-  useTheme,
-} from "@react-navigation/native";
+import { CompositeScreenProps, useFocusEffect, useTheme } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../../navigation/RootBottomTabNavigtion";
-import { SvgXml } from "react-native-svg";
-import { ARROW_DOWN, LOCATION, MENUW, SEARCH } from "../../../svg";
-import Input from "../../../components/Input";
-import {
-  Ionicons,
-  MaterialIcons,
-  Feather,
-  MaterialCommunityIcons,
-  Entypo,
-  FontAwesome5,
-  AntDesign,
-} from "@expo/vector-icons";
-import { FecthAllPizzaResponse, Pizza } from "../../../redux/types/store";
-import { fetchAllPizza } from "../../../redux/thunk/store";
-import { ErrorResponse } from "../../../redux/types/auth";
-import {
-  Console,
-  addCommasToNumber,
-  handleErrorEdgeCases,
-} from "../../../utils";
+import { Feather } from "@expo/vector-icons";
 import Toast from "react-native-root-toast";
-import { useAppDispatch } from "../../../redux/hooks/hook";
-import LoaderModal from "../../../components/LoaderModal";
-import { adjustCartItem } from "../../../redux/thunk/cart";
-import { AdjustCartItemResponse } from "../../../redux/types/cart";
 import Container from "../../../components/Container";
-import { pizzaImageSource } from "../../../lib/pizzaImage";
 import Panel from "../../../components/Panel";
+import CartButton from "../../../components/CartButton";
+import QuantityStepper from "../../../components/QuantityStepper";
+import { useAppDispatch } from "../../../redux/hooks/hook";
+import { fetchAllPizza } from "../../../redux/thunk/store";
+import { adjustCartItem, fecthallcart } from "../../../redux/thunk/cart";
+import type { Pizza } from "../../../redux/types/store";
+import { pizzaImageSource } from "../../../lib/pizzaImage";
+import { addCommasToNumber } from "../../../utils";
 
 type MenuScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Menu">,
   NativeStackScreenProps<RootStackParamList>
 >;
 
-let currencySymbol = "₦";
+type Filter = "all" | "meat-free";
+const BRAND = "#FE6400";
+const naira = (amount: number) => `₦${addCommasToNumber(amount)}`;
 
 const Menu = ({ navigation }: MenuScreenProps) => {
-  const { dark, colors } = useTheme() as Theme;
+  const { dark } = useTheme();
   const dispatch = useAppDispatch();
-  const [pizza, setPizza] = useState<Pizza[]>([]);
-  //const [filteredPizzas, setFilteredPizzas] = useState(pizza);
-  const [showloadingmodal, setShowLoadingModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
-  let fetchproduct_count = 0;
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>("all");
+  // pizza id -> quantity already in the cart, so each row can show a stepper
+  const [inCart, setInCart] = useState<Record<string, number>>({});
+  const [busyId, setBusyId] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (fetchproduct_count == 0) {
-      setTimeout(() => {
-        fetchPizza();
-
-        fetchproduct_count++;
-      }, 500);
+  const load = useCallback(async () => {
+    const [menu, cart] = await Promise.all([dispatch(fetchAllPizza()), dispatch(fecthallcart())]);
+    if (fetchAllPizza.fulfilled.match(menu)) {
+      setPizzas(menu.payload.data);
+      setLoadFailed(false);
+    } else {
+      setLoadFailed(true);
     }
-  }, []);
+    if (fecthallcart.fulfilled.match(cart)) {
+      setInCart(Object.fromEntries(cart.payload.items.map((i) => [i.pizza.id, i.quantity])));
+    }
+    setLoading(false);
+  }, [dispatch]);
 
+  // Refresh whenever the tab comes into view (the cart may have changed elsewhere)
   useFocusEffect(
-    React.useCallback(() => {
-      // Component is focused
-      setTimeout(() => {
-        fetchPizzaSilently();
-      }, 500);
-      return () => {};
-    }, ["1"]),
+    useCallback(() => {
+      load();
+    }, [load])
   );
 
-  //API CALLS
-  const fetchPizza = async () => {
-    setShowLoadingModal(true);
-    try {
-      const result = await dispatch(fetchAllPizza());
-      const { meta, payload } = result;
-      setShowLoadingModal(false);
+  const refresh = async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  };
 
-      if (meta.requestStatus == "rejected") {
-        let err = payload as ErrorResponse;
-        Console.error("fetchAllStore err:", err);
-        handleErrorEdgeCases(dispatch, err, () => {
-          Toast.show(err.message || "Something went wrong please try again", {
-            duration: Toast.durations.SHORT,
-            backgroundColor: "red",
-            position: Toast.positions.TOP,
-            animation: true,
-          });
+  const changeQuantity = async (pizza: Pizza, delta: 1 | -1) => {
+    setBusyId(pizza.id);
+    const result = await dispatch(adjustCartItem({ pizzaId: pizza.id, delta }));
+    setBusyId(null);
+    if (adjustCartItem.fulfilled.match(result)) {
+      setInCart((current) => ({ ...current, [pizza.id]: result.payload.quantity }));
+      if (delta > 0 && result.payload.quantity === 1) {
+        Toast.show(`Added ${pizza.name} to your cart`, {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.TOP,
         });
-        return;
       }
-      setShowLoadingModal(false);
-      if (meta.requestStatus == "fulfilled") {
-        let res_data = payload as FecthAllPizzaResponse;
-        setPizza(res_data.data);
-        setShowLoadingModal(false); // Set to false to hide loading modal after fetching data
-      }
-    } catch (err) {
-      setShowLoadingModal(false);
-      Console.error("fetchStore err1:", String(err));
+    } else {
+      Toast.show(result.payload?.message ?? "Couldn't update your cart", {
+        duration: Toast.durations.SHORT,
+        backgroundColor: "red",
+        position: Toast.positions.TOP,
+      });
     }
   };
 
-  const addToCart = async (productId: string, productName: string) => {
-    Console.log("Product ID----", productId);
-    try {
-      setShowLoadingModal(true);
-      const result = await dispatch(
-        adjustCartItem({
-          pizzaId: productId,
-          delta: 1,
-        }),
-      );
+  const openPizza = (pizza: Pizza) =>
+    navigation.navigate("MenuDescription", {
+      id: pizza.id,
+      image: pizza.image_url,
+      name: pizza.name,
+      description: pizza.description,
+      price: pizza.price,
+      isVeg: pizza.is_veg,
+    });
 
-      setShowLoadingModal(false);
-      const { meta, payload } = result;
+  const visible = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return pizzas.filter(
+      (p) =>
+        (filter === "all" || p.is_veg) &&
+        (!q || p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q))
+    );
+  }, [pizzas, query, filter]);
 
-      if (meta.requestStatus == "rejected") {
-        let err = payload as ErrorResponse;
-        handleErrorEdgeCases(dispatch, err, () => {
-          Toast.show(err.message || "Something went wrong please try again", {
-            duration: Toast.durations.SHORT,
-            backgroundColor: "red",
-            position: Toast.positions.TOP,
-            animation: true,
-          });
-        });
+  const cartCount = Object.values(inCart).reduce((sum, n) => sum + n, 0);
+  const hasMeatFree = pizzas.some((p) => p.is_veg);
+  const text = dark ? "text-white" : "text-[#1A1A1A]";
+  const muted = dark ? "text-[#A1A1AA]" : "text-[#71717A]";
+  const surface = dark ? "bg-[#262626]" : "bg-[#F4F4F5]";
 
-        Console.log("Login err", err);
-        return;
-      }
-
-      if (meta.requestStatus == "fulfilled") {
-        let res_data = payload as AdjustCartItemResponse;
-        Console.log("AddToCart Response", res_data);
-        Toast.show(
-          `${productName} added to cart (${res_data.quantity} in cart)`,
-          {
-            duration: Toast.durations.SHORT,
-            backgroundColor: "green",
-            position: Toast.positions.TOP,
-          },
-        );
-      }
-    } catch (error) {
-      setShowLoadingModal(false);
-      console.log("AddToCArt-------", error);
-    }
+  const filterChip = (value: Filter, label: string) => {
+    const selected = filter === value;
+    return (
+      <TouchableOpacity
+        key={value}
+        onPress={() => setFilter(value)}
+        className={`px-[16px] py-[8px] rounded-full ${selected ? "bg-[#FE6400]" : surface}`}
+        accessibilityState={{ selected }}
+      >
+        <Text className={`text-[14px] font-semibold ${selected ? "text-white" : text}`}>{label}</Text>
+      </TouchableOpacity>
+    );
   };
 
-  const fetchPizzaSilently = async () => {
-    try {
-      const result = await dispatch(fetchAllPizza());
-      const { meta, payload } = result;
+  // Kept as an element (not a component) so the search box keeps focus while typing
+  const header = (
+    <View className={`pt-[8px] pb-[8px]`}>
+      <View className={`flex-row items-center justify-between`}>
+        <View>
+          <Text className={`text-[24px] font-bold ${text}`}>Menu</Text>
+          {!loading && !loadFailed && (
+            <Text className={`mt-[2px] text-[13px] ${muted}`}>
+              {pizzas.length} {pizzas.length === 1 ? "pizza" : "pizzas"}
+            </Text>
+          )}
+        </View>
+        <CartButton count={cartCount} onPress={() => navigation.navigate("Cart")} />
+      </View>
 
-      if (meta.requestStatus == "rejected") {
-        let err = payload as ErrorResponse;
-        Console.error("fetchAllStore err:", err);
-        handleErrorEdgeCases(dispatch, err, () => {
-          Toast.show(err.message || "Something went wrong please try again", {
-            duration: Toast.durations.SHORT,
-            backgroundColor: "red",
-            position: Toast.positions.TOP,
-            animation: true,
-          });
-        });
-        return;
-      }
-      if (meta.requestStatus == "fulfilled") {
-        let res_data = payload as FecthAllPizzaResponse;
-        setPizza(res_data.data); // Set to false to hide loading modal after fetching data
-      }
-    } catch (err) {
-      Console.error("fetchStore err1:", String(err));
-    }
-  };
+      {/* SEARCH */}
+      <View className={`mt-[16px] h-[52px] flex-row items-center gap-[10px] px-[16px] rounded-[16px] ${surface}`}>
+        <Feather name="search" size={18} color={dark ? "#A1A1AA" : "#71717A"} />
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search pizzas"
+          placeholderTextColor={dark ? "#A1A1AA" : "#71717A"}
+          className={`flex-1 h-full text-[15px] ${text}`}
+          returnKeyType="search"
+          autoCorrect={false}
+          accessibilityLabel="Search pizzas"
+        />
+        {!!query && (
+          <TouchableOpacity onPress={() => setQuery("")} hitSlop={10} accessibilityLabel="Clear search">
+            <Feather name="x-circle" size={18} color={dark ? "#A1A1AA" : "#71717A"} />
+          </TouchableOpacity>
+        )}
+      </View>
 
-  console.log("Pizza", pizza);
-
-  const handleSearch = (query: any) => {
-    setSearchQuery(query);
-  };
-
-  const filteredPizzas = pizza.filter((pizza) =>
-    pizza.name.toLowerCase().includes(searchQuery.toLowerCase()),
+      {/* FILTERS — Meat-free only shows when the menu has vegetarian pizzas */}
+      {hasMeatFree && (
+        <View className={`mt-[14px] flex-row gap-[8px]`}>
+          {filterChip("all", "All")}
+          {filterChip("meat-free", "Meat-free")}
+        </View>
+      )}
+    </View>
   );
 
-  const renderAllPizza = ({ item }: { item: Pizza }) => {
-    const handleAddToCart = (productId: string, productName: string) => {
-      Console.log("Product ID", productId);
-      addToCart(productId, productName);
-    };
-
+  const renderPizza = ({ item }: { item: Pizza }) => {
+    const quantity = inCart[item.id] ?? 0;
     return (
       <Panel
-        containerClassName="mb-[15px]"
-        className={`${dark ? "bg-[#2a2a2a]" : "bg-[#fff]"} px-[10px] py-[5px] shadow-sm`}
         title={item.name}
-        titleNumberOfLines={2}
-        titleClassName={dark ? "text-[#fff]" : "text-[#000]"}
-        subtitle={`${currencySymbol}${addCommasToNumber(item.price)}`}
-        subTitleClassName="text-base mt-[6px]"
-        subTitleStyle={{ color: dark ? "#fff" : "#000" }}
-        onPress={() =>
-          navigation.navigate("MenuDescription", {
-            id: item.id,
-            image: item.image_url,
-            name: item.name,
-            description: item.description,
-            price: item.price,
-          })
-        }
+        titleNumberOfLines={1}
+        titleClassName={`text-[16px] font-semibold ${text}`}
+        subtitle={naira(item.price)}
+        subTitleClassName={`text-[15px] mt-[4px] font-bold`}
+        subTitleStyle={{ color: BRAND }}
+        className={`px-[12px] py-[12px] rounded-[18px]`}
+        style={styles.softShadow}
+        onPress={() => openPizza(item)}
         LeftIcon={
-          <View className="shadow-md rounded-full">
-            <Image
-              source={pizzaImageSource(item)}
-              style={{ width: 80, height: 80 }}
-              resizeMode="contain"
-            />
+          <View className={`w-[76px] h-[76px] rounded-[16px] items-center justify-center ${dark ? "bg-[#2F2F2F]" : "bg-[#FFF4EC]"}`}>
+            <Image source={pizzaImageSource(item)} style={styles.rowImage} resizeMode="contain" />
           </View>
         }
         RightIcon={
-          <TouchableOpacity
-            onPress={() => handleAddToCart(item.id, item.name)}
-            className="bg-[#FE6400] px-[10px] py-[10px] rounded-[10px]"
-          >
-            <AntDesign name="plus" size={24} color="white" />
-          </TouchableOpacity>
+          quantity > 0 ? (
+            <QuantityStepper
+              quantity={quantity}
+              name={item.name}
+              busy={busyId === item.id}
+              onChange={(delta) => changeQuantity(item, delta)}
+            />
+          ) : (
+            <TouchableOpacity
+              onPress={() => changeQuantity(item, 1)}
+              disabled={busyId === item.id}
+              hitSlop={8}
+              className={`w-[36px] h-[36px] rounded-full items-center justify-center bg-[#FE6400] ${busyId === item.id ? "opacity-50" : ""}`}
+              accessibilityLabel={`Add ${item.name} to cart`}
+            >
+              <Feather name="plus" size={18} color="#fff" />
+            </TouchableOpacity>
+          )
         }
       />
     );
   };
 
-  const keyProductExtractor: ((item: Pizza) => string) | undefined = (item) => {
-    return item.id;
-  };
+  const empty = loading ? (
+    <View className={`gap-[12px]`}>
+      {[0, 1, 2, 3].map((i) => (
+        <View key={i} className={`h-[100px] rounded-[18px] ${surface}`} />
+      ))}
+    </View>
+  ) : loadFailed ? (
+    <View className={`mt-[24px] items-center`}>
+      <Text className={`text-[16px] font-semibold ${text}`}>The menu didn't load</Text>
+      <Text className={`mt-[4px] text-[14px] text-center ${muted}`}>
+        Check your connection, then pull down to try again.
+      </Text>
+    </View>
+  ) : (
+    <View className={`mt-[24px] items-center`}>
+      <Text className={`text-[16px] font-semibold text-center ${text}`}>
+        {query.trim() ? `No pizzas match "${query.trim()}"` : "No meat-free pizzas right now"}
+      </Text>
+      <TouchableOpacity
+        onPress={() => {
+          setQuery("");
+          setFilter("all");
+        }}
+        className={`mt-[12px] px-[16px] py-[8px] rounded-full border border-[#FE6400]`}
+      >
+        <Text className={`text-[14px] font-semibold text-[#FE6400]`}>Show all pizzas</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
-    <Container hidelefticon showHeader headerText="Menu" hideScrollView={true}>
-      <View className={`w-full flex-1`}>
-        {/* SEARCH */}
-        <Input
-          placeholder="Search for today’s meal"
-          LeftIcon={<SvgXml xml={SEARCH} />}
-          containerClassName={`mt-[10px]`}
-          value={searchQuery}
-          onChangeText={handleSearch}
-          className={`shadow-md`}
-        />
-
-        {/* LIST */}
-        <View className={`flex-1 mt-[10px]`}>
-          {filteredPizzas.length === 0 ? (
-            <View>
-              <Text>Not Available</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={filteredPizzas}
-              keyExtractor={keyProductExtractor}
-              renderItem={renderAllPizza}
-              contentContainerStyle={{ paddingBottom: 10 }}
-              initialNumToRender={5}
-              showsVerticalScrollIndicator={false}
-            />
-          )}
-        </View>
-      </View>
-      <LoaderModal visible={showloadingmodal} />
+    <Container hideScrollView>
+      <FlatList
+        data={loading ? [] : visible}
+        keyExtractor={(item) => item.id}
+        renderItem={renderPizza}
+        ListHeaderComponent={header}
+        ListEmptyComponent={empty}
+        contentContainerStyle={styles.list}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        refreshing={refreshing}
+        onRefresh={refresh}
+      />
     </Container>
   );
 };
 
 export default Menu;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  list: {
+    gap: 12,
+    paddingBottom: 24,
+  },
+  softShadow: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  rowImage: {
+    width: 64,
+    height: 64,
+  },
+});

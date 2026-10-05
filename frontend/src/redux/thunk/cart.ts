@@ -10,6 +10,7 @@ import {
   RemoveCartItemResponse,
 } from "../types/cart";
 import { ErrorResponse } from "../types/auth";
+import type { RootState } from "../store/store";
 
 // Row Level Security limits every query below to the logged-in user's own rows,
 // so no userId needs to be sent from the app.
@@ -76,5 +77,26 @@ export const removeCartItem = createAsyncThunk<
     return { message: "Item removed from cart" };
   } catch (err) {
     return thunkApi.rejectWithValue(toErrorResponse(err, "Unable to remove item"));
+  }
+});
+
+/** Empties the logged-in user's cart. */
+export const clearCart = createAsyncThunk<
+  RemoveCartItemResponse,
+  void,
+  { state: RootState; rejectValue: ErrorResponse }
+>("laboutte/clearCart", async (_, thunkApi) => {
+  const userId = thunkApi.getState().user.uuid;
+  if (!userId) {
+    return thunkApi.rejectWithValue(toErrorResponse("You need to be logged in to do that"));
+  }
+  try {
+    const { error } = await supabase.from("cart_items").delete().eq("user_id", userId);
+    if (error) {
+      return thunkApi.rejectWithValue(toErrorResponse(error, "Couldn't clear your cart"));
+    }
+    return { message: "Cart cleared" };
+  } catch (err) {
+    return thunkApi.rejectWithValue(toErrorResponse(err, "Couldn't clear your cart"));
   }
 });

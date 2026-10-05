@@ -43,7 +43,20 @@ export function startAuthSync(dispatch: AppDispatch): () => void {
       dispatch(logUserOut());
       return;
     }
-    dispatch(setUser(userFromSession(session)));
+    if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
+      dispatch(setUser(userFromSession(session)));
+    } else {
+      // Token refreshes etc.: update the session fields only. Re-applying the names from
+      // auth metadata here would overwrite a name the user just edited.
+      dispatch(
+        setUser({
+          loggedIn: true,
+          accessToken: session.access_token,
+          email: session.user.email ?? "",
+          uuid: session.user.id,
+        })
+      );
+    }
 
     if (event === "INITIAL_SESSION" || event === "SIGNED_IN" || event === "USER_UPDATED") {
       // Don't await Supabase calls inside this callback (it can deadlock the client);

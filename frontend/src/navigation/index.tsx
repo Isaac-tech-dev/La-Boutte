@@ -23,7 +23,6 @@ const DarkTheme: Theme = {
   dark: true,
   colors: { ...NavigationDarkTheme.colors, ...DarkThemeJson.colors },
 };
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useAppSelector } from "../redux/hooks/hook";
 
@@ -45,7 +44,6 @@ const Navigation = () => {
   };
 
   return (
-    <SafeAreaProvider>
       <NavigationContainer
       theme={returnAppTheme()}
       // theme={DarkTheme}
@@ -56,7 +54,6 @@ const Navigation = () => {
           <AuthStackNavigation />
         )}
       </NavigationContainer>
-    </SafeAreaProvider>
   );
 };
 

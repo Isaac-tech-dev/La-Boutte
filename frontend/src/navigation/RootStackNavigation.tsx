@@ -14,6 +14,8 @@ export type RootStackParamList = {
     name: string;
     description: string;
     price: number;
+    /** shows the Meat-free tag */
+    isVeg?: boolean | null;
   };
   EditProfile: undefined;
   Settings: undefined;

@@ -1,54 +1,38 @@
 import {
   FlatList,
   Image,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useCallback, useState } from "react";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/RootStackNavigation";
-import {
-  CompositeScreenProps,
-  useFocusEffect,
-  useTheme,
-} from "@react-navigation/native";
-import type { Theme } from "../../types/theme";
+import { CompositeScreenProps, useFocusEffect, useTheme } from "@react-navigation/native";
 import { BottomTabScreenProps } from "@react-navigation/bottom-tabs";
 import { RootBottomTabParamList } from "../../navigation/RootBottomTabNavigtion";
 import { SvgXml } from "react-native-svg";
-import {
-  ARROW_DOWN,
-  DESSERT,
-  DISHES,
-  DRINKS,
-  LOCATION,
-  MENUW,
-  OTHERS,
-  PIZZA,
-  SEARCH,
-} from "../../svg";
-import Input from "../../components/Input";
-import RenderRestaurant from "../../components/RenderRestaurant";
-import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
+import Toast from "react-native-root-toast";
 import Container from "../../components/Container";
-import { useAppDispatch } from "../../redux/hooks/hook";
+import Panel from "../../components/Panel";
+import CartButton from "../../components/CartButton";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks/hook";
 import { fetchAllPizza } from "../../redux/thunk/store";
+import { adjustCartItem, fecthallcart } from "../../redux/thunk/cart";
 import type { Pizza } from "../../redux/types/store";
 import { pizzaImageSource } from "../../lib/pizzaImage";
 import { addCommasToNumber } from "../../utils";
-
-interface OfferItemProps {
-  svg: string;
-  title: string;
-}
 
 type HomeScreenProps = CompositeScreenProps<
   BottomTabScreenProps<RootBottomTabParamList, "Home">,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+const BRAND = "#FE6400";
+const POPULAR_COUNT = 6;
 
 const offersData = [
   {
@@ -116,64 +100,128 @@ const offersData = [
   },
 ];
 
-const img1 = require("../../../assets/images/restaurants/restuarant1.jpg");
-const img2 = require("../../../assets/images/restaurants/restuarant2.jpg");
+const naira = (amount: number) => `₦${addCommasToNumber(amount)}`;
 
-const restaurantsData = [
-  { id: "1", images: [img1] },
-  { id: "2", images: [img2] },
-  // Add more items as needed
-];
+function greeting(date = new Date()) {
+  const h = date.getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
 
-const POPULAR_COUNT = 6;
-
-const OfferItem: React.FC<OfferItemProps> = ({ svg, title }) => {
-  const { dark } = useTheme() as Theme;
+/** Rounded chip for a category: small icon + label. */
+const CategoryChip = ({ title, svg, onPress }: { title: string; svg: string; onPress: () => void }) => {
+  const { dark } = useTheme();
   return (
-    <TouchableOpacity className={`items-center w-[64px]`}>
-      {/* Fixed-size tile so every icon (and its label) lines up, whatever the SVG size */}
-      <View
-        className={`w-[60px] h-[60px] items-center justify-center rounded-[16px] ${
-          dark ? "bg-[#2A2A2A]" : "bg-white"
-        }`}
-        style={styles.tileShadow}
-      >
-        <SvgXml xml={svg} width={32} height={32} />
+    <TouchableOpacity
+      onPress={onPress}
+      className={`flex-row items-center gap-[8px] pl-[8px] pr-[14px] py-[8px] rounded-full ${
+        dark ? "bg-[#262626]" : "bg-[#F4F4F5]"
+      }`}
+      accessibilityLabel={`Browse ${title}`}
+    >
+      {/* Always white: the category icons are dark line drawings */}
+      <View className={`w-[28px] h-[28px] rounded-full items-center justify-center bg-white`}>
+        <SvgXml xml={svg} width={18} height={18} />
       </View>
-      <Text
-        numberOfLines={1}
-        className={`mt-[8px] text-[13px] ${dark ? "text-white" : "text-black"}`}
-      >
-        {title}
-      </Text>
+      <Text className={`text-[14px] font-medium ${dark ? "text-white" : "text-[#1A1A1A]"}`}>{title}</Text>
     </TouchableOpacity>
   );
 };
 
-const Home = ({ navigation }: HomeScreenProps) => {
-  const { dark } = useTheme() as Theme;
-  const dispatch = useAppDispatch();
-  const [popular, setPopular] = useState<Pizza[]>([]);
-  const [loadFailed, setLoadFailed] = useState(false);
+/** Card in the "Popular right now" carousel, with its own add-to-cart button. */
+const PopularCard = ({
+  pizza,
+  busy,
+  onOpen,
+  onAdd,
+}: {
+  pizza: Pizza;
+  busy: boolean;
+  onOpen: () => void;
+  onAdd: () => void;
+}) => {
+  const { dark } = useTheme();
+  return (
+    <Pressable
+      onPress={onOpen}
+      className={`w-[156px] rounded-[20px] p-[12px] ${dark ? "bg-[#262626]" : "bg-white"}`}
+      style={styles.softShadow}
+      accessibilityLabel={`${pizza.name}, ${naira(pizza.price)}`}
+    >
+      <View className={`h-[112px] items-center justify-center rounded-[16px] ${dark ? "bg-[#2F2F2F]" : "bg-[#FFF4EC]"}`}>
+        <Image source={pizzaImageSource(pizza)} style={styles.cardImage} resizeMode="contain" />
+      </View>
+      <Text numberOfLines={1} className={`mt-[10px] text-[15px] font-semibold ${dark ? "text-white" : "text-[#1A1A1A]"}`}>
+        {pizza.name}
+      </Text>
+      <View className={`mt-[6px] flex-row items-center justify-between`}>
+        <Text className={`text-[15px] font-bold text-[#FE6400]`}>{naira(pizza.price)}</Text>
+        <TouchableOpacity
+          onPress={onAdd}
+          disabled={busy}
+          hitSlop={8}
+          className={`w-[32px] h-[32px] rounded-full items-center justify-center bg-[#FE6400] ${busy ? "opacity-50" : ""}`}
+          accessibilityLabel={`Add ${pizza.name} to cart`}
+        >
+          <Feather name="plus" size={18} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </Pressable>
+  );
+};
 
-  // Popular = the first few pizzas on the real menu (refreshed whenever Home is focused)
+/** Grey placeholder shown while the menu loads. */
+const CardSkeleton = () => {
+  const { dark } = useTheme();
+  const block = dark ? "bg-[#2F2F2F]" : "bg-[#F1F1F2]";
+  return (
+    <View className={`w-[156px] rounded-[20px] p-[12px] ${dark ? "bg-[#262626]" : "bg-white"}`} style={styles.softShadow}>
+      <View className={`h-[112px] rounded-[16px] ${block}`} />
+      <View className={`mt-[12px] h-[14px] w-[100px] rounded-full ${block}`} />
+      <View className={`mt-[10px] h-[14px] w-[60px] rounded-full ${block}`} />
+    </View>
+  );
+};
+
+const Home = ({ navigation }: HomeScreenProps) => {
+  const { dark } = useTheme();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user);
+
+  const [pizzas, setPizzas] = useState<Pizza[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const [addingId, setAddingId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const [menu, cart] = await Promise.all([dispatch(fetchAllPizza()), dispatch(fecthallcart())]);
+    if (fetchAllPizza.fulfilled.match(menu)) {
+      setPizzas(menu.payload.data);
+      setLoadFailed(false);
+    } else {
+      setLoadFailed(true);
+    }
+    if (fecthallcart.fulfilled.match(cart)) {
+      setCartCount(cart.payload.items.reduce((sum, i) => sum + i.quantity, 0));
+    }
+    setLoading(false);
+  }, [dispatch]);
+
+  // Refresh menu + cart count whenever Home comes back into view
   useFocusEffect(
     useCallback(() => {
-      let active = true;
-      dispatch(fetchAllPizza()).then((result) => {
-        if (!active) return;
-        if (fetchAllPizza.fulfilled.match(result)) {
-          setPopular(result.payload.data.slice(0, POPULAR_COUNT));
-          setLoadFailed(false);
-        } else {
-          setLoadFailed(true);
-        }
-      });
-      return () => {
-        active = false;
-      };
-    }, [dispatch])
+      load();
+    }, [load])
   );
+
+  const refresh = async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  };
 
   const openPizza = (pizza: Pizza) =>
     navigation.navigate("MenuDescription", {
@@ -182,112 +230,179 @@ const Home = ({ navigation }: HomeScreenProps) => {
       name: pizza.name,
       description: pizza.description,
       price: pizza.price,
+      isVeg: pizza.is_veg,
     });
 
-  const textColor = dark ? "text-white" : "text-black";
+  const addToCart = async (pizza: Pizza) => {
+    setAddingId(pizza.id);
+    const result = await dispatch(adjustCartItem({ pizzaId: pizza.id, delta: 1 }));
+    setAddingId(null);
+    if (adjustCartItem.fulfilled.match(result)) {
+      setCartCount((n) => n + 1);
+      Toast.show(`Added ${pizza.name} to your cart`, {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.TOP,
+      });
+    } else {
+      Toast.show(result.payload?.message ?? "Couldn't add to your cart", {
+        duration: Toast.durations.SHORT,
+        backgroundColor: "red",
+        position: Toast.positions.TOP,
+      });
+    }
+  };
+
+  const goToMenu = () => navigation.navigate("Menu");
+  const popular = pizzas.slice(0, POPULAR_COUNT);
+  const meatFree = pizzas.filter((p) => p.is_veg);
+  const text = dark ? "text-white" : "text-[#1A1A1A]";
+  const muted = dark ? "text-[#A1A1AA]" : "text-[#71717A]";
 
   return (
-    <Container
-      HeaderLeftIcon={
-        <View className={`flex-row items-center gap-2`}>
-          <SvgXml xml={LOCATION} />
-          <Text className={textColor}>Your Location</Text>
-          <SvgXml xml={ARROW_DOWN} />
+    <Container onRefresh={refresh} refreshing={refreshing}>
+      <View className={`w-full pt-[8px] pb-[32px]`}>
+        {/* GREETING + CART */}
+        <View className={`flex-row items-center justify-between`}>
+          <View className={`flex-1 pr-[12px]`}>
+            <TouchableOpacity className={`flex-row items-center gap-[4px]`} accessibilityLabel="Change delivery location">
+              <Feather name="map-pin" size={13} color={BRAND} />
+              <Text className={`text-[13px] ${muted}`}>Deliver to</Text>
+              <Text className={`text-[13px] font-semibold ${text}`}>Your location</Text>
+              <Feather name="chevron-down" size={14} color={dark ? "#A1A1AA" : "#71717A"} />
+            </TouchableOpacity>
+            <Text numberOfLines={1} className={`mt-[4px] text-[24px] font-bold ${text}`}>
+              {greeting()}
+              {user.firstname ? `, ${user.firstname}` : ""}
+            </Text>
+          </View>
+          <CartButton count={cartCount} onPress={() => navigation.navigate("Cart")} />
         </View>
-      }
-      showHeader
-      HeaderRightIcon={
-        <TouchableOpacity
-          onPress={() => navigation.navigate("Menu")}
-          className={`bg-[#FE6400] px-[10px] py-[10px] rounded-[6px]`}
+
+        {/* SEARCH — opens the Menu, where search lives */}
+        <Pressable
+          onPress={goToMenu}
+          className={`mt-[18px] h-[52px] flex-row items-center gap-[10px] px-[16px] rounded-[16px] ${dark ? "bg-[#262626]" : "bg-[#F4F4F5]"}`}
+          accessibilityRole="search"
+          accessibilityLabel="Search pizzas"
         >
-          <SvgXml xml={MENUW} />
-        </TouchableOpacity>
-      }
-    >
-      <View className={`pb-[24px]`}>
-        {/* SEARCH */}
-        <Input
-          placeholder="Search for today’s meal"
-          className={`shadow-sm`}
-          LeftIcon={<SvgXml xml={SEARCH} />}
-          containerClassName={`mt-[10px]`}
-        />
+          <Feather name="search" size={18} color={dark ? "#A1A1AA" : "#71717A"} />
+          <Text className={`text-[15px] ${muted}`}>Search pizzas</Text>
+        </Pressable>
+
+        {/* HERO — the one bold moment: the pizza spills off the edge of the card */}
+        <Pressable
+          onPress={goToMenu}
+          className={`mt-[20px] h-[176px] rounded-[24px] bg-[#FE6400] overflow-hidden`}
+          accessibilityLabel="Order now"
+        >
+          <View className={`absolute -right-[60px] -bottom-[70px] w-[240px] h-[240px] rounded-full bg-[#FF8433]`} />
+          <Image
+            source={require("../../../assets/images/P3.png")}
+            style={styles.heroPizza}
+            resizeMode="contain"
+          />
+          <View className={`flex-1 justify-center pl-[20px] w-[62%]`}>
+            <Text className={`text-[26px] leading-[30px] font-extrabold text-white`}>
+              {"Fresh from\nthe oven"}
+            </Text>
+            <Text className={`mt-[6px] text-[13px] leading-[18px] text-[#FFE3CF]`}>
+              Hot pizza delivered to your door.
+            </Text>
+            <View className={`mt-[14px] self-start px-[16px] py-[9px] rounded-full bg-white`}>
+              <Text className={`text-[14px] font-bold text-[#FE6400]`}>Order now</Text>
+            </View>
+          </View>
+        </Pressable>
 
         {/* CATEGORIES */}
         <FlatList
           data={offersData}
-          renderItem={({ item }) => <OfferItem title={item.title} svg={item.svg} />}
-          keyExtractor={(item) => item.title}
           horizontal
           showsHorizontalScrollIndicator={false}
-          // Padding leaves room for the tile shadows so they aren't clipped
-          contentContainerStyle={styles.categories}
-          className={`mt-[12px]`}
+          keyExtractor={(item) => item.title}
+          renderItem={({ item }) => <CategoryChip title={item.title} svg={item.svg} onPress={goToMenu} />}
+          contentContainerStyle={styles.chips}
+          className={`mt-[20px] -mx-[20px]`}
         />
 
-        {/* ADVERT — LinearGradient isn't a core RN component, so nativewind v4 ignores
-            className on it; it has to be styled with `style`. */}
-        <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate("Menu")}>
-          <LinearGradient
-            colors={["#FE6400", "#F93F2D"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.banner}
-          >
-            <Image
-              source={require("../../../assets/images/P3.png")}
-              style={styles.bannerImage}
-            />
-            <View className={`flex-1`}>
-              <Text className={`text-[20px] font-bold text-white`}>New meal prepared</Text>
-              <Text className={`mt-[6px] text-[13px] leading-[18px] text-[#FFE27A]`}>
-                Order now and get it delivered to your location as soon as possible
-              </Text>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
         {/* POPULAR */}
-        <View className={`mt-[24px]`}>
-          <View className={`flex-row justify-between items-center`}>
-            <Text className={`text-[16px] font-semibold ${textColor}`}>Popular</Text>
-            <TouchableOpacity onPress={() => navigation.navigate("Menu")}>
-              <Text className={`text-[14px] text-primary`}>See All</Text>
-            </TouchableOpacity>
-          </View>
+        <View className={`mt-[26px] flex-row items-baseline justify-between`}>
+          <Text className={`text-[19px] font-bold ${text}`}>Popular right now</Text>
+          <TouchableOpacity onPress={goToMenu} hitSlop={8}>
+            <Text className={`text-[14px] font-semibold text-[#FE6400]`}>See all</Text>
+          </TouchableOpacity>
+        </View>
 
-          {loadFailed && popular.length === 0 ? (
-            <Text className={`mt-[12px] text-[13px] text-[#808080]`}>
-              Couldn't load the menu. Pull down or reopen the tab to try again.
-            </Text>
-          ) : (
-            <View className={`mt-[12px] flex-row flex-wrap justify-between gap-y-[16px]`}>
-              {popular.map((pizza) => (
-                <TouchableOpacity
+        {loadFailed && pizzas.length === 0 ? (
+          <View className={`mt-[12px] p-[16px] rounded-[16px] ${dark ? "bg-[#262626]" : "bg-[#F4F4F5]"}`}>
+            <Text className={`text-[14px] ${text}`}>The menu didn't load.</Text>
+            <Text className={`mt-[2px] text-[13px] ${muted}`}>Check your connection, then pull down to try again.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={loading ? [] : popular}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <PopularCard
+                pizza={item}
+                busy={addingId === item.id}
+                onOpen={() => openPizza(item)}
+                onAdd={() => addToCart(item)}
+              />
+            )}
+            ListEmptyComponent={
+              loading ? (
+                <View className={`flex-row gap-[12px]`}>
+                  <CardSkeleton />
+                  <CardSkeleton />
+                  <CardSkeleton />
+                </View>
+              ) : null
+            }
+            contentContainerStyle={styles.carousel}
+            className={`mt-[4px] -mx-[20px]`}
+          />
+        )}
+
+        {/* MEAT-FREE — only when the menu has vegetarian pizzas */}
+        {meatFree.length > 0 && (
+          <View className={`mt-[18px]`}>
+            <Text className={`text-[19px] font-bold ${text}`}>Meat-free</Text>
+            <View className={`mt-[12px] gap-[10px]`}>
+              {meatFree.map((pizza) => (
+                <Panel
                   key={pizza.id}
+                  title={pizza.name}
+                  titleClassName={`text-[15px] font-semibold ${text}`}
+                  subtitle={naira(pizza.price)}
+                  subTitleClassName={`text-[14px] mt-[2px] font-semibold`}
+                  subTitleStyle={{ color: BRAND }}
+                  className={`px-[12px] py-[10px] rounded-[16px]`}
+                  style={styles.softShadow}
                   onPress={() => openPizza(pizza)}
-                  className={`w-[31%] items-center`}
-                  accessibilityLabel={`${pizza.name}, ₦${addCommasToNumber(pizza.price)}`}
-                >
-                  <View className={`w-full aspect-square`}>
-                    <Image
-                      source={pizzaImageSource(pizza)}
-                      style={styles.popularImage}
-                      resizeMode="contain"
-                    />
-                  </View>
-                  <Text numberOfLines={1} className={`mt-[6px] text-[13px] font-semibold ${textColor}`}>
-                    {pizza.name}
-                  </Text>
-                  <Text className={`text-[12px] text-primary`}>
-                    ₦{addCommasToNumber(pizza.price)}
-                  </Text>
-                </TouchableOpacity>
+                  LeftIcon={
+                    <View className={`w-[56px] h-[56px] rounded-[14px] items-center justify-center ${dark ? "bg-[#2F2F2F]" : "bg-[#EEF7EA]"}`}>
+                      <Image source={pizzaImageSource(pizza)} style={styles.rowImage} resizeMode="contain" />
+                    </View>
+                  }
+                  RightIcon={
+                    <TouchableOpacity
+                      onPress={() => addToCart(pizza)}
+                      disabled={addingId === pizza.id}
+                      hitSlop={8}
+                      className={`w-[32px] h-[32px] rounded-full items-center justify-center bg-[#FE6400] ${addingId === pizza.id ? "opacity-50" : ""}`}
+                      accessibilityLabel={`Add ${pizza.name} to cart`}
+                    >
+                      <Feather name="plus" size={18} color="#fff" />
+                    </TouchableOpacity>
+                  }
+                />
               ))}
             </View>
-          )}
-        </View>
+          </View>
+        )}
       </View>
     </Container>
   );
@@ -296,35 +411,37 @@ const Home = ({ navigation }: HomeScreenProps) => {
 export default Home;
 
 const styles = StyleSheet.create({
-  categories: {
-    flexGrow: 1,
-    justifyContent: "space-between",
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 2,
-  },
-  tileShadow: {
+  softShadow: {
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  banner: {
-    marginTop: 16,
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
+  heroPizza: {
+    position: "absolute",
+    right: -34,
+    top: 14,
+    width: 172,
+    height: 172,
+    transform: [{ rotate: "-14deg" }],
+  },
+  chips: {
+    gap: 8,
+    paddingHorizontal: 20,
+  },
+  carousel: {
     gap: 12,
-    overflow: "hidden",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 14,
   },
-  bannerImage: {
-    width: 110,
-    height: 110,
+  cardImage: {
+    width: 96,
+    height: 96,
   },
-  popularImage: {
-    width: "100%",
-    height: "100%",
+  rowImage: {
+    width: 46,
+    height: 46,
   },
 });

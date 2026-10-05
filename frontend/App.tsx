@@ -5,6 +5,7 @@ import { store } from "./src/redux/store/store";
 import { Provider } from "react-redux";
 import Navigation from "./src/navigation";
 import { RootSiblingParent } from "react-native-root-siblings";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { startAuthSync } from "./src/lib/authSync";
 
 export default function App() {
@@ -13,9 +14,12 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <RootSiblingParent>
-        <Navigation />
-      </RootSiblingParent>
+      {/* SafeAreaProvider must wrap RootSiblingParent: toasts render there and need safe-area insets */}
+      <SafeAreaProvider>
+        <RootSiblingParent>
+          <Navigation />
+        </RootSiblingParent>
+      </SafeAreaProvider>
     </Provider>
   );
 }

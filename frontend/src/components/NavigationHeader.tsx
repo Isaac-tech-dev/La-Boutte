@@ -68,7 +68,7 @@ const NavigationHeader: FC<NavigationHeaderProps> = ({
   return (
     <View
       className={twMerge(
-        `w-full items-start ${dark? 'bg-[#1A1A1A]':'bg-white'} py-2 pl-6 pr-4 ${className}`
+        `w-full items-start ${dark? 'bg-[#1A1A1A]':'bg-white'} py-2 px-5 ${className}`
       )}
       style={style}
     >
@@ -76,9 +76,9 @@ const NavigationHeader: FC<NavigationHeaderProps> = ({
         {renderLeftIcon()}
         {RightIcon}
       </View>
-      <View className="flex-row mt-2 justify-between">
+      <View className="flex-row w-full items-center mt-2 justify-between">
         {title && (
-          <Text className={`text-xl leading-normal flex-[1] ${dark? 'text-[#fff]':'text-[#1A1A1A]'}`}>{title}</Text>
+          <Text className={`text-[24px] font-bold leading-normal flex-[1] ${dark? 'text-[#fff]':'text-[#1A1A1A]'}`}>{title}</Text>
         )}
         {RightIcon2}
       </View>
